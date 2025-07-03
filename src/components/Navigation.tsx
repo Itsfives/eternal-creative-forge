@@ -1,18 +1,26 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, Shield, Settings } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
 
   const navItems = [
-    { name: "Home", href: "#home" },
-    { name: "Services", href: "#services" },
-    { name: "Portfolio", href: "#portfolio" },
-    { name: "About", href: "#about" },
-    { name: "Contact", href: "#contact" },
+    { name: "Home", href: "/" },
+    { name: "Services", href: "/#services" },
+    { name: "Portfolio", href: "/portfolio" },
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "/contact" },
+  ];
+
+  const portalItems = [
+    { name: "Client Portal", href: "/client-portal", icon: User },
+    { name: "CMS", href: "/cms", icon: Settings },
+    { name: "Admin", href: "/admin", icon: Shield },
   ];
 
   useEffect(() => {
@@ -24,13 +32,20 @@ const Navigation = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const smoothScroll = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
+  const handleNavClick = (href: string) => {
+    if (href.startsWith('/#')) {
+      // Handle hash navigation for same-page sections
+      if (location.pathname !== '/') {
+        window.location.href = href;
+      } else {
+        const element = document.querySelector(href.substring(1));
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }
     }
     setIsMenuOpen(false);
   };
@@ -45,27 +60,59 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo with enhanced animation */}
           <div className="flex-shrink-0">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-seagram-green to-violet-purple bg-clip-text text-transparent hover:scale-105 transition-transform duration-300 cursor-pointer">
-              Eternals Studio
-            </h1>
+            <Link to="/">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-seagram-green to-violet-purple bg-clip-text text-transparent hover:scale-105 transition-transform duration-300 cursor-pointer">
+                Eternals Studio
+              </h1>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
               {navItems.map((item, index) => (
-                <button
-                  key={item.name}
-                  onClick={() => smoothScroll(item.href)}
-                  className={`text-foreground hover:text-seagram-green transition-all duration-300 px-3 py-2 text-sm font-medium relative group hover:scale-105 ${
-                    scrolled ? 'animate-fade-in' : ''
-                  }`}
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  {item.name}
-                  <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-seagram-green to-violet-purple scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
-                </button>
+                item.href.startsWith('/#') ? (
+                  <button
+                    key={item.name}
+                    onClick={() => handleNavClick(item.href)}
+                    className={`text-foreground hover:text-seagram-green transition-all duration-300 px-3 py-2 text-sm font-medium relative group hover:scale-105 ${
+                      scrolled ? 'animate-fade-in' : ''
+                    }`}
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    {item.name}
+                    <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-seagram-green to-violet-purple scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+                  </button>
+                ) : (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`text-foreground hover:text-seagram-green transition-all duration-300 px-3 py-2 text-sm font-medium relative group hover:scale-105 ${
+                      scrolled ? 'animate-fade-in' : ''
+                    } ${location.pathname === item.href ? 'text-seagram-green' : ''}`}
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    {item.name}
+                    <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-seagram-green to-violet-purple scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+                  </Link>
+                )
               ))}
+              
+              {/* Portal Links */}
+              <div className="flex items-center space-x-2 ml-4 pl-4 border-l border-border">
+                {portalItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`p-2 rounded-md hover:bg-seagram-green/10 transition-all duration-300 ${
+                      location.pathname === item.href ? 'bg-seagram-green/20 text-seagram-green' : 'text-muted-foreground hover:text-seagram-green'
+                    }`}
+                    title={item.name}
+                  >
+                    <item.icon className="w-4 h-4" />
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -97,15 +144,48 @@ const Navigation = () => {
           <div className="md:hidden animate-fade-in">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-background/95 backdrop-blur-lg border-t border-border">
               {navItems.map((item, index) => (
-                <button
-                  key={item.name}
-                  onClick={() => smoothScroll(item.href)}
-                  className={`text-foreground hover:text-seagram-green block px-3 py-2 text-base font-medium w-full text-left hover:bg-seagram-green/10 rounded-md transition-all duration-300 hover:scale-105 hover:translate-x-2 animate-fade-in`}
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  {item.name}
-                </button>
+                item.href.startsWith('/#') ? (
+                  <button
+                    key={item.name}
+                    onClick={() => handleNavClick(item.href)}
+                    className={`text-foreground hover:text-seagram-green block px-3 py-2 text-base font-medium w-full text-left hover:bg-seagram-green/10 rounded-md transition-all duration-300 hover:scale-105 hover:translate-x-2 animate-fade-in`}
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    {item.name}
+                  </button>
+                ) : (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`text-foreground hover:text-seagram-green block px-3 py-2 text-base font-medium w-full text-left hover:bg-seagram-green/10 rounded-md transition-all duration-300 hover:scale-105 hover:translate-x-2 animate-fade-in ${
+                      location.pathname === item.href ? 'text-seagram-green bg-seagram-green/10' : ''
+                    }`}
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    {item.name}
+                  </Link>
+                )
               ))}
+              
+              {/* Mobile Portal Links */}
+              <div className="border-t border-border pt-3 mt-3">
+                {portalItems.map((item, index) => (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`text-foreground hover:text-seagram-green flex items-center px-3 py-2 text-base font-medium w-full text-left hover:bg-seagram-green/10 rounded-md transition-all duration-300 hover:scale-105 hover:translate-x-2 animate-fade-in ${
+                      location.pathname === item.href ? 'text-seagram-green bg-seagram-green/10' : ''
+                    }`}
+                    style={{ animationDelay: `${(navItems.length + index) * 50}ms` }}
+                  >
+                    <item.icon className="w-4 h-4 mr-3" />
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+              
               <Button className="w-full mt-4 bg-seagram-green hover:bg-seagram-green/90 text-white hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-seagram-green/25">
                 Get Started
               </Button>
