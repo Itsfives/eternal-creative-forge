@@ -7,9 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Edit, Trash2, Eye, Search, Filter } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, Search, Filter, FileImage, Upload } from "lucide-react";
+import PageEditor from "@/components/PageEditor";
 
 const CMS = () => {
+  const [currentView, setCurrentView] = useState<'list' | 'edit'>('list');
+  const [editingPageId, setEditingPageId] = useState<string | null>(null);
+  
   const [pages] = useState([
     { id: 1, title: "Home Page", status: "Published", lastModified: "Dec 2, 2024", author: "Admin" },
     { id: 2, title: "About Us", status: "Draft", lastModified: "Dec 1, 2024", author: "Editor" },
@@ -23,6 +27,33 @@ const CMS = () => {
     { id: 3, title: "SEO Best Practices", status: "Published", category: "Marketing", date: "Nov 25, 2024" }
   ]);
 
+  const [mediaFiles] = useState([
+    { id: 1, name: "hero-image.jpg", type: "image", size: "2.4 MB", uploaded: "Dec 1, 2024" },
+    { id: 2, name: "logo.png", type: "image", size: "156 KB", uploaded: "Nov 28, 2024" },
+    { id: 3, name: "portfolio-1.jpg", type: "image", size: "1.8 MB", uploaded: "Nov 25, 2024" },
+    { id: 4, name: "team-photo.jpg", type: "image", size: "3.2 MB", uploaded: "Nov 20, 2024" }
+  ]);
+
+  const handleEditPage = (pageId: string) => {
+    setEditingPageId(pageId);
+    setCurrentView('edit');
+  };
+
+  const handleBackToList = () => {
+    setCurrentView('list');
+    setEditingPageId(null);
+  };
+
+  if (currentView === 'edit') {
+    return (
+      <div className="min-h-screen bg-background pt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <PageEditor pageId={editingPageId} onBack={handleBackToList} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -32,7 +63,7 @@ const CMS = () => {
               Content Management
             </h1>
             <p className="text-muted-foreground mt-2">
-              Manage your website content, pages, and blog posts
+              Manage your website content, pages, and blog posts with ease
             </p>
           </div>
           <Button className="bg-seagram-green hover:bg-seagram-green/90">
@@ -55,7 +86,7 @@ const CMS = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <CardTitle>Website Pages</CardTitle>
-                    <CardDescription>Manage your website pages and content</CardDescription>
+                    <CardDescription>Edit your website pages with our visual editor</CardDescription>
                   </div>
                   <div className="flex space-x-2">
                     <Button variant="outline" size="sm">
@@ -88,7 +119,11 @@ const CMS = () => {
                         <Button size="sm" variant="outline">
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleEditPage(page.id.toString())}
+                        >
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button size="sm" variant="outline">
@@ -106,7 +141,7 @@ const CMS = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Blog Posts</CardTitle>
-                <CardDescription>Manage your blog content and articles</CardDescription>
+                <CardDescription>Create and manage your blog content</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -144,13 +179,29 @@ const CMS = () => {
           <TabsContent value="media" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Media Library</CardTitle>
-                <CardDescription>Manage images, videos, and other media files</CardDescription>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Media Library</CardTitle>
+                    <CardDescription>Upload and manage your images and files</CardDescription>
+                  </div>
+                  <Button className="bg-seagram-green hover:bg-seagram-green/90">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload Files
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground">Media library interface coming soon</p>
-                  <Button className="mt-4">Upload Media</Button>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {mediaFiles.map((file) => (
+                    <div key={file.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center justify-center h-24 bg-muted rounded mb-2">
+                        <FileImage className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <h4 className="font-medium text-sm truncate">{file.name}</h4>
+                      <p className="text-xs text-muted-foreground">{file.size}</p>
+                      <p className="text-xs text-muted-foreground">{file.uploaded}</p>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -175,6 +226,10 @@ const CMS = () => {
                   <div>
                     <Label htmlFor="contact-email">Contact Email</Label>
                     <Input id="contact-email" type="email" defaultValue="contact@eternalsstudio.com" />
+                  </div>
+                  <div>
+                    <Label htmlFor="site-logo">Site Logo URL</Label>
+                    <Input id="site-logo" defaultValue="/logo.png" />
                   </div>
                 </div>
                 <Button>Save Settings</Button>

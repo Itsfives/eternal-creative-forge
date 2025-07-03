@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, Activity, DollarSign, FileText, Settings, Shield, BarChart3 } from "lucide-react";
-import AnimatedCounter from "@/components/AnimatedCounter";
+import { Settings, Shield, BarChart3, Plus } from "lucide-react";
+import AdminStats from "@/components/AdminStats";
 
 const Admin = () => {
   const [users] = useState([
@@ -30,72 +30,78 @@ const Admin = () => {
             Admin Dashboard
           </h1>
           <p className="text-muted-foreground mt-2">
-            Manage users, monitor activities, and oversee system operations
+            Monitor your website performance and manage system operations
           </p>
         </div>
 
         {/* Stats Overview */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                <AnimatedCounter end={156} />
-              </div>
-              <p className="text-xs text-muted-foreground">+12% from last month</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                <AnimatedCounter end={23} />
-              </div>
-              <p className="text-xs text-muted-foreground">+3 new this week</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Revenue</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                $<AnimatedCounter end={45230} />
-              </div>
-              <p className="text-xs text-muted-foreground">+18% from last month</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">System Health</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                <AnimatedCounter end={99} suffix="%" />
-              </div>
-              <p className="text-xs text-muted-foreground">All systems operational</p>
-            </CardContent>
-          </Card>
+        <div className="mb-8">
+          <AdminStats />
         </div>
 
-        <Tabs defaultValue="users" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
             <TabsTrigger value="reports">Reports</TabsTrigger>
             <TabsTrigger value="system">System</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                  <CardDescription>Common administrative tasks</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button className="w-full justify-start bg-seagram-green hover:bg-seagram-green/90">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create New User
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
+                    <Settings className="w-4 h-4 mr-2" />
+                    System Settings
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Generate Report
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
+                    <Shield className="w-4 h-4 mr-2" />
+                    Security Settings
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Activity</CardTitle>
+                  <CardDescription>Latest system activities</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {activities.slice(0, 4).map((activity, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-2 h-2 rounded-full ${
+                            activity.type === 'success' ? 'bg-green-500' :
+                            activity.type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+                          }`} />
+                          <div>
+                            <p className="text-sm font-medium">{activity.action}</p>
+                            <p className="text-xs text-muted-foreground">by {activity.user}</p>
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground">{activity.time}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
           <TabsContent value="users" className="space-y-6">
             <Card>
@@ -106,6 +112,7 @@ const Admin = () => {
                     <CardDescription>Manage user accounts and permissions</CardDescription>
                   </div>
                   <Button className="bg-seagram-green hover:bg-seagram-green/90">
+                    <Plus className="w-4 h-4 mr-2" />
                     Add User
                   </Button>
                 </div>
@@ -155,15 +162,15 @@ const Admin = () => {
           <TabsContent value="activity" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Monitor system and user activities</CardDescription>
+                <CardTitle>System Activity Log</CardTitle>
+                <CardDescription>Monitor all system and user activities</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {activities.map((activity, index) => (
                     <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center space-x-4">
-                        <div className={`w-2 h-2 rounded-full ${
+                        <div className={`w-3 h-3 rounded-full ${
                           activity.type === 'success' ? 'bg-green-500' :
                           activity.type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
                         }`} />
@@ -184,13 +191,39 @@ const Admin = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Analytics & Reports</CardTitle>
-                <CardDescription>View detailed analytics and generate reports</CardDescription>
+                <CardDescription>Generate detailed analytics and performance reports</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12">
-                  <BarChart3 className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">Advanced analytics coming soon</p>
-                  <Button className="mt-4">Generate Report</Button>
+                <div className="grid gap-4 md:grid-cols-3">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">User Analytics</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">Track user engagement and behavior</p>
+                      <Button variant="outline" className="w-full">Generate Report</Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Performance</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">Monitor website performance metrics</p>
+                      <Button variant="outline" className="w-full">View Metrics</Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Security</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">Security audit and threat reports</p>
+                      <Button variant="outline" className="w-full">Security Report</Button>
+                    </CardContent>
+                  </Card>
                 </div>
               </CardContent>
             </Card>
@@ -199,8 +232,8 @@ const Admin = () => {
           <TabsContent value="system" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>System Settings</CardTitle>
-                <CardDescription>Configure system-wide settings and preferences</CardDescription>
+                <CardTitle>System Configuration</CardTitle>
+                <CardDescription>Configure system-wide settings and maintenance</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 md:grid-cols-2">
@@ -208,11 +241,11 @@ const Admin = () => {
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center">
                         <Shield className="w-5 h-5 mr-2" />
-                        Security
+                        Security Settings
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4">Manage security settings</p>
+                      <p className="text-sm text-muted-foreground mb-4">Configure authentication and security policies</p>
                       <Button variant="outline" className="w-full">Configure Security</Button>
                     </CardContent>
                   </Card>
@@ -221,11 +254,11 @@ const Admin = () => {
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center">
                         <Settings className="w-5 h-5 mr-2" />
-                        General
+                        General Settings
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4">General system settings</p>
+                      <p className="text-sm text-muted-foreground mb-4">Manage general system preferences</p>
                       <Button variant="outline" className="w-full">System Settings</Button>
                     </CardContent>
                   </Card>
