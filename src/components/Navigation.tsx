@@ -60,10 +60,16 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo with enhanced animation */}
           <div className="flex-shrink-0">
-            <Link to="/">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-seagram-green to-violet-purple bg-clip-text text-transparent hover:scale-105 transition-transform duration-300 cursor-pointer">
+            <Link to="/" className="flex items-center space-x-2">
+              <img 
+                src="/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png" 
+                alt="Eternals Studio Logo" 
+                className="h-8 w-8 hover:scale-105 transition-transform duration-300"
+                style={{ filter: 'brightness(0) saturate(100%) invert(25%) sepia(100%) saturate(2000%) hue-rotate(150deg) brightness(1.2) contrast(1.2)' }}
+              />
+              <span className="text-xl font-bold bg-gradient-to-r from-seagram-green to-violet-purple bg-clip-text text-transparent hover:scale-105 transition-transform duration-300">
                 Eternals Studio
-              </h1>
+              </span>
             </Link>
           </div>
 
@@ -118,9 +124,11 @@ const Navigation = () => {
 
           {/* Enhanced CTA Button */}
           <div className="hidden md:block">
-            <Button className="bg-seagram-green hover:bg-seagram-green/90 text-white hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-seagram-green/25">
-              Get Started
-            </Button>
+            <Link to="/auth">
+              <Button className="bg-seagram-green hover:bg-seagram-green/90 text-white hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-seagram-green/25">
+                Get Started
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -186,9 +194,11 @@ const Navigation = () => {
                 ))}
               </div>
               
-              <Button className="w-full mt-4 bg-seagram-green hover:bg-seagram-green/90 text-white hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-seagram-green/25">
-                Get Started
-              </Button>
+              <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                <Button className="w-full mt-4 bg-seagram-green hover:bg-seagram-green/90 text-white hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-seagram-green/25">
+                  Get Started
+                </Button>
+              </Link>
             </div>
           </div>
         )}

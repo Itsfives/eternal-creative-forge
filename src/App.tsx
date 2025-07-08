@@ -11,6 +11,7 @@ import Contact from "./pages/Contact";
 import ClientPortal from "./pages/ClientPortal";
 import CMS from "./pages/CMS";
 import Admin from "./pages/Admin";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/client-portal" element={<ClientPortal />} />
           <Route path="/cms" element={<CMS />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/auth" element={<Auth />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
