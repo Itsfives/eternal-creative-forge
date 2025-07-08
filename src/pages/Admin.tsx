@@ -1,14 +1,17 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Settings, Shield, BarChart3, Plus } from "lucide-react";
+import { Settings, Shield, BarChart3, Plus, UserPlus, HelpCircle } from "lucide-react";
 import AdminStats from "@/components/AdminStats";
+import QuickStartGuide from "@/components/QuickStartGuide";
+import ClientSetupWizard from "@/components/ClientSetupWizard";
 
 const Admin = () => {
+  const [showClientWizard, setShowClientWizard] = useState(false);
+  
   const [users] = useState([
     { id: 1, name: "John Doe", email: "john@example.com", role: "Client", status: "Active", joined: "Nov 15, 2024" },
     { id: 2, name: "Jane Smith", email: "jane@example.com", role: "Editor", status: "Active", joined: "Oct 22, 2024" },
@@ -22,16 +25,43 @@ const Admin = () => {
     { action: "New user registered", user: "Mike Johnson", time: "1 day ago", type: "info" }
   ]);
 
+  if (showClientWizard) {
+    return (
+      <div className="min-h-screen bg-background pt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <ClientSetupWizard onClose={() => setShowClientWizard(false)} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-seagram-green to-violet-purple bg-clip-text text-transparent">
-            Admin Dashboard
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Monitor your website performance and manage system operations
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-seagram-green to-violet-purple bg-clip-text text-transparent">
+                Admin Dashboard
+              </h1>
+              <p className="text-muted-foreground mt-2">
+                Monitor your website performance and manage system operations
+              </p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" size="sm">
+                <HelpCircle className="w-4 h-4 mr-2" />
+                Help Guide
+              </Button>
+              <Button 
+                onClick={() => setShowClientWizard(true)}
+                className="bg-seagram-green hover:bg-seagram-green/90"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                New Client Setup
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* Stats Overview */}
@@ -50,31 +80,8 @@ const Admin = () => {
 
           <TabsContent value="overview" className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                  <CardDescription>Common administrative tasks</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button className="w-full justify-start bg-seagram-green hover:bg-seagram-green/90">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create New User
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Settings className="w-4 h-4 mr-2" />
-                    System Settings
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <BarChart3 className="w-4 h-4 mr-2" />
-                    Generate Report
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Shield className="w-4 h-4 mr-2" />
-                    Security Settings
-                  </Button>
-                </CardContent>
-              </Card>
-
+              <QuickStartGuide />
+              
               <Card>
                 <CardHeader>
                   <CardTitle>Recent Activity</CardTitle>
@@ -83,7 +90,7 @@ const Admin = () => {
                 <CardContent>
                   <div className="space-y-3">
                     {activities.slice(0, 4).map((activity, index) => (
-                      <div key={index} className="flex items-center justify-between">
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                         <div className="flex items-center space-x-3">
                           <div className={`w-2 h-2 rounded-full ${
                             activity.type === 'success' ? 'bg-green-500' :
@@ -101,6 +108,40 @@ const Admin = () => {
                 </CardContent>
               </Card>
             </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Admin Actions</CardTitle>
+                <CardDescription>Common administrative tasks and shortcuts</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-4">
+                  <Button 
+                    className="h-auto p-4 bg-seagram-green hover:bg-seagram-green/90 flex-col"
+                    onClick={() => setShowClientWizard(true)}
+                  >
+                    <UserPlus className="w-6 h-6 mb-2" />
+                    <span className="text-sm font-medium">Add New Client</span>
+                    <span className="text-xs opacity-80">Set up client portal</span>
+                  </Button>
+                  <Button variant="outline" className="h-auto p-4 flex-col">
+                    <Settings className="w-6 h-6 mb-2" />
+                    <span className="text-sm font-medium">Site Settings</span>
+                    <span className="text-xs text-muted-foreground">Configure website</span>
+                  </Button>
+                  <Button variant="outline" className="h-auto p-4 flex-col">
+                    <BarChart3 className="w-6 h-6 mb-2" />
+                    <span className="text-sm font-medium">View Reports</span>
+                    <span className="text-xs text-muted-foreground">Analytics & metrics</span>
+                  </Button>
+                  <Button variant="outline" className="h-auto p-4 flex-col">
+                    <Shield className="w-6 h-6 mb-2" />
+                    <span className="text-sm font-medium">Security</span>
+                    <span className="text-xs text-muted-foreground">Manage permissions</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="users" className="space-y-6">
@@ -111,7 +152,10 @@ const Admin = () => {
                     <CardTitle>User Management</CardTitle>
                     <CardDescription>Manage user accounts and permissions</CardDescription>
                   </div>
-                  <Button className="bg-seagram-green hover:bg-seagram-green/90">
+                  <Button 
+                    className="bg-seagram-green hover:bg-seagram-green/90"
+                    onClick={() => setShowClientWizard(true)}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Add User
                   </Button>
