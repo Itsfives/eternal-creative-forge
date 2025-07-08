@@ -1,10 +1,12 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, Clock, CheckCircle, Download, MessageCircle, CreditCard, Calendar, AlertCircle, HelpCircle } from "lucide-react";
+import { FileText, Clock, CheckCircle, Download, MessageCircle, CreditCard, Calendar, AlertCircle, HelpCircle, Home, DollarSign } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const ClientPortal = () => {
   const [activeProjects] = useState([
@@ -63,10 +65,18 @@ const ClientPortal = () => {
                 Track your projects, access files, and stay connected with our team
               </p>
             </div>
-            <Button variant="outline" size="sm">
-              <HelpCircle className="w-4 h-4 mr-2" />
-              Need Help?
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Link to="/">
+                <Button variant="outline" size="sm">
+                  <Home className="w-4 h-4 mr-2" />
+                  Home
+                </Button>
+              </Link>
+              <Button variant="outline" size="sm">
+                <HelpCircle className="w-4 h-4 mr-2" />
+                Need Help?
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -363,6 +373,14 @@ const ClientPortal = () => {
                             {invoice.status}
                           </Badge>
                         </div>
+                        {invoice.status === "Pending" && (
+                          <div className="flex items-center space-x-2">
+                            <Button size="sm" className="bg-seagram-green hover:bg-seagram-green/90">
+                              <DollarSign className="w-4 h-4 mr-1" />
+                              Pay Now
+                            </Button>
+                          </div>
+                        )}
                         <Button size="sm" variant="outline">
                           <Download className="w-4 h-4 mr-2" />
                           Download
@@ -371,6 +389,33 @@ const ClientPortal = () => {
                     </div>
                   ))}
                 </div>
+                
+                <Card className="mt-6 bg-muted/30">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Payment Methods</CardTitle>
+                    <CardDescription>Choose your preferred payment method</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <Button variant="outline" className="h-auto p-4 flex-col">
+                        <CreditCard className="w-8 h-8 mb-2" />
+                        <span className="text-sm">Credit/Debit</span>
+                      </Button>
+                      <Button variant="outline" className="h-auto p-4 flex-col">
+                        <DollarSign className="w-8 h-8 mb-2" />
+                        <span className="text-sm">PayPal</span>
+                      </Button>
+                      <Button variant="outline" className="h-auto p-4 flex-col">
+                        <DollarSign className="w-8 h-8 mb-2" />
+                        <span className="text-sm">Stripe</span>
+                      </Button>
+                      <Button variant="outline" className="h-auto p-4 flex-col">
+                        <DollarSign className="w-8 h-8 mb-2" />
+                        <span className="text-sm">Venmo</span>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </CardContent>
             </Card>
           </TabsContent>

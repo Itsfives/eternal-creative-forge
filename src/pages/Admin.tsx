@@ -1,10 +1,12 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Settings, Shield, BarChart3, Plus, UserPlus, HelpCircle } from "lucide-react";
+import { Settings, Shield, BarChart3, Plus, UserPlus, HelpCircle, Home } from "lucide-react";
+import { Link } from "react-router-dom";
 import AdminStats from "@/components/AdminStats";
 import QuickStartGuide from "@/components/QuickStartGuide";
 import ClientSetupWizard from "@/components/ClientSetupWizard";
@@ -49,6 +51,12 @@ const Admin = () => {
               </p>
             </div>
             <div className="flex items-center space-x-2">
+              <Link to="/">
+                <Button variant="outline" size="sm">
+                  <Home className="w-4 h-4 mr-2" />
+                  Home
+                </Button>
+              </Link>
               <Button variant="outline" size="sm">
                 <HelpCircle className="w-4 h-4 mr-2" />
                 Help Guide
