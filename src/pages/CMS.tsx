@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,6 @@ import { Switch } from "@/components/ui/switch";
 import { Save, Eye, Settings, FileText, Image, Palette, Users, Home, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 import RichTextEditor from "@/components/RichTextEditor";
-import PageEditor from "@/components/PageEditor";
 
 const CMS = () => {
   const [isDirty, setIsDirty] = useState(false);
@@ -33,7 +33,7 @@ const CMS = () => {
     setIsDirty(true);
   };
 
-  const handleSiteDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSiteDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setSiteDescription(e.target.value);
     setIsDirty(true);
   };
@@ -133,7 +133,7 @@ const CMS = () => {
                   <CardDescription>Manage your home page content</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <PageEditor content={homePageContent} onChange={handleHomePageContentChange} />
+                  <RichTextEditor content={homePageContent} onChange={handleHomePageContentChange} />
                   <div className="flex items-center justify-between">
                     <Label htmlFor="home-page-publish">Published</Label>
                     <Switch
@@ -151,7 +151,7 @@ const CMS = () => {
                   <CardDescription>Manage your about us page content</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <PageEditor content={aboutUsContent} onChange={handleAboutUsContentChange} />
+                  <RichTextEditor content={aboutUsContent} onChange={handleAboutUsContentChange} />
                   <div className="flex items-center justify-between">
                     <Label htmlFor="about-us-publish">Published</Label>
                     <Switch
@@ -169,7 +169,7 @@ const CMS = () => {
                   <CardDescription>Manage your contact page content</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <PageEditor content={contactPageContent} onChange={handleContactPageContentChange} />
+                  <RichTextEditor content={contactPageContent} onChange={handleContactPageContentChange} />
                   <div className="flex items-center justify-between">
                     <Label htmlFor="contact-page-publish">Published</Label>
                     <Switch
