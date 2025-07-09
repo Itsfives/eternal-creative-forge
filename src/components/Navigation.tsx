@@ -61,12 +61,11 @@ const Navigation = () => {
           {/* Logo with enhanced animation */}
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center space-x-2">
-              <img 
-                src="/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png" 
-                alt="Eternals Studio Logo" 
-                className="h-10 w-auto object-contain hover:scale-105 transition-all duration-300"
-                style={{ 
-                  filter: 'brightness(0) saturate(100%) invert(44%) sepia(93%) saturate(1352%) hue-rotate(129deg) brightness(119%) contrast(119%)',
+              <div 
+                className="h-10 w-10 bg-gradient-to-r from-seagram-green to-violet-purple hover:scale-105 transition-all duration-300"
+                style={{
+                  mask: 'url(/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png) no-repeat center/contain',
+                  WebkitMask: 'url(/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png) no-repeat center/contain'
                 }}
               />
               <span className="text-xl font-bold bg-gradient-to-r from-seagram-green to-violet-purple bg-clip-text text-transparent hover:scale-105 transition-transform duration-300">

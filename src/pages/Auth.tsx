@@ -109,12 +109,11 @@ const Auth = () => {
               ← Back to Home
             </Link>
             <div className="flex justify-center">
-              <img 
-                src="/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png" 
-                alt="Eternals Studio Logo" 
-                className="h-16 w-auto object-contain hover:scale-105 transition-all duration-300"
-                style={{ 
-                  filter: 'brightness(0) saturate(100%) invert(44%) sepia(93%) saturate(1352%) hue-rotate(129deg) brightness(119%) contrast(119%)',
+              <div 
+                className="h-16 w-16 bg-gradient-to-r from-seagram-green to-violet-purple hover:scale-105 transition-all duration-300"
+                style={{
+                  mask: 'url(/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png) no-repeat center/contain',
+                  WebkitMask: 'url(/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png) no-repeat center/contain'
                 }}
               />
             </div>
