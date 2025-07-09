@@ -62,7 +62,7 @@ const Navigation = () => {
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center space-x-2">
               <div 
-                className="h-10 w-10 bg-gradient-to-r from-seagram-green to-violet-purple hover:scale-105 transition-all duration-300"
+                className="h-16 w-16 bg-gradient-to-r from-seagram-green to-violet-purple hover:scale-105 transition-all duration-300"
                 style={{
                   mask: 'url(/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png) no-repeat center/contain',
                   WebkitMask: 'url(/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png) no-repeat center/contain'

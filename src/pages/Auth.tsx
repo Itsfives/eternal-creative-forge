@@ -110,7 +110,7 @@ const Auth = () => {
             </Link>
             <div className="flex justify-center">
               <div 
-                className="h-16 w-16 bg-gradient-to-r from-seagram-green to-violet-purple hover:scale-105 transition-all duration-300"
+                className="h-20 w-20 bg-gradient-to-r from-seagram-green to-violet-purple hover:scale-105 transition-all duration-300"
                 style={{
                   mask: 'url(/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png) no-repeat center/contain',
                   WebkitMask: 'url(/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png) no-repeat center/contain'
