@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -101,12 +101,24 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <img 
-              src="/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png" 
-              alt="Eternals Studio Logo" 
-              className="h-16 w-16"
-            />
+          <div className="flex justify-between items-center mb-4">
+            <Link 
+              to="/" 
+              className="text-muted-foreground hover:text-seagram-green transition-colors duration-300 flex items-center gap-2"
+            >
+              ← Back to Home
+            </Link>
+            <div className="flex justify-center">
+              <img 
+                src="/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png" 
+                alt="Eternals Studio Logo" 
+                className="h-16 w-auto object-contain hover:scale-105 transition-all duration-300"
+                style={{ 
+                  filter: 'brightness(0) saturate(100%) invert(44%) sepia(93%) saturate(1352%) hue-rotate(129deg) brightness(119%) contrast(119%)',
+                }}
+              />
+            </div>
+            <div className="w-20"></div> {/* Spacer for balance */}
           </div>
           <CardTitle className="text-2xl bg-gradient-to-r from-seagram-green to-violet-purple bg-clip-text text-transparent">
             Welcome to Eternals Studio
