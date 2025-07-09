@@ -2,16 +2,18 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
 import AnimatedCounter from "./AnimatedCounter";
-import InteractiveParticles from "./InteractiveParticles";
+import LogoParticles from "./LogoParticles";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const Hero = () => {
   const [heroRef, heroVisible] = useScrollAnimation(0.1);
   const [statsRef, statsVisible] = useScrollAnimation(0.3);
+  const { trackInteraction, trackBusinessEvent } = useAnalytics();
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <InteractiveParticles />
+      <LogoParticles />
       
       {/* Enhanced Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-background/50">
@@ -55,6 +57,10 @@ const Hero = () => {
             <Button 
               size="lg" 
               className="bg-gradient-to-r from-seagram-green to-seagram-green/90 hover:from-seagram-green/90 hover:to-seagram-green text-white px-8 py-6 text-lg font-semibold group hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-seagram-green/25"
+              onClick={() => {
+                trackInteraction('hero_cta', 'click');
+                trackBusinessEvent('project_inquiry_started', 'conversion');
+              }}
             >
               Start Your Project
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-2 group-hover:scale-110 transition-all duration-300" />
@@ -64,6 +70,10 @@ const Hero = () => {
               size="lg" 
               variant="outline" 
               className="border-violet-purple text-violet-purple hover:bg-violet-purple hover:text-white px-8 py-6 text-lg font-semibold group hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-violet-purple/25"
+              onClick={() => {
+                trackInteraction('hero_video', 'click');
+                trackBusinessEvent('portfolio_viewed', 'engagement');
+              }}
             >
               <Play className="mr-2 h-5 w-5 group-hover:scale-125 group-hover:rotate-12 transition-all duration-300" />
               Watch Our Work
