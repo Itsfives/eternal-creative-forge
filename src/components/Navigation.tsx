@@ -1,13 +1,15 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User, Shield, Settings } from "lucide-react";
+import { Menu, X, User, Shield, Settings, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/App";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const { isAuthenticated, hasRole, logout } = useAuth();
 
   const navItems = [
     { name: "Home", href: "/" },
@@ -17,11 +19,21 @@ const Navigation = () => {
     { name: "Contact", href: "/contact" },
   ];
 
-  const portalItems = [
-    { name: "Client Portal", href: "/client-portal", icon: User },
-    { name: "CMS", href: "/cms", icon: Settings },
-    { name: "Admin", href: "/admin", icon: Shield },
-  ];
+  const getPortalItems = () => {
+    const items = [];
+    if (isAuthenticated) {
+      items.push({ name: "Client Portal", href: "/client-portal", icon: User });
+    }
+    if (hasRole("cms_editor")) {
+      items.push({ name: "CMS", href: "/cms", icon: Settings });
+    }
+    if (hasRole("admin")) {
+      items.push({ name: "Admin", href: "/admin", icon: Shield });
+    }
+    return items;
+  };
+
+  const portalItems = getPortalItems();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,10 +74,10 @@ const Navigation = () => {
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center space-x-2">
               <div 
-                className="h-16 w-16 bg-gradient-to-r from-seagram-green to-violet-purple hover:scale-105 transition-all duration-300"
+                className="h-12 w-12 bg-gradient-to-r from-seagram-green to-violet-purple hover:scale-105 transition-all duration-300"
                 style={{
-                  mask: 'url(/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png) no-repeat center/contain',
-                  WebkitMask: 'url(/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png) no-repeat center/contain'
+                  mask: 'url(/lovable-uploads/2fa6123b-b4cf-4f40-ab0b-a089850b5ad8.png) no-repeat center/contain',
+                  WebkitMask: 'url(/lovable-uploads/2fa6123b-b4cf-4f40-ab0b-a089850b5ad8.png) no-repeat center/contain'
                 }}
               />
               <span className="text-xl font-bold bg-gradient-to-r from-seagram-green to-violet-purple bg-clip-text text-transparent hover:scale-105 transition-transform duration-300">
@@ -125,11 +137,22 @@ const Navigation = () => {
 
           {/* Enhanced CTA Button */}
           <div className="hidden md:block">
-            <Link to="/auth">
-              <Button className="bg-seagram-green hover:bg-seagram-green/90 text-white hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-seagram-green/25">
-                Get Started
+            {isAuthenticated ? (
+              <Button 
+                onClick={logout}
+                variant="outline"
+                className="hover:scale-105 transition-all duration-300"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
               </Button>
-            </Link>
+            ) : (
+              <Link to="/auth">
+                <Button className="bg-seagram-green hover:bg-seagram-green/90 text-white hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-seagram-green/25">
+                  Get Started
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -195,11 +218,25 @@ const Navigation = () => {
                 ))}
               </div>
               
-              <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                <Button className="w-full mt-4 bg-seagram-green hover:bg-seagram-green/90 text-white hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-seagram-green/25">
-                  Get Started
+              {isAuthenticated ? (
+                <Button 
+                  onClick={() => {
+                    logout();
+                    setIsMenuOpen(false);
+                  }}
+                  variant="outline"
+                  className="w-full mt-4 hover:scale-105 transition-all duration-300"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
                 </Button>
-              </Link>
+              ) : (
+                <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                  <Button className="w-full mt-4 bg-seagram-green hover:bg-seagram-green/90 text-white hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-seagram-green/25">
+                    Get Started
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         )}

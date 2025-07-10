@@ -29,7 +29,7 @@ const LogoParticles = () => {
     // Load logo image
     const logoImg = new Image();
     logoImg.crossOrigin = 'anonymous';
-    logoImg.src = '/lovable-uploads/0d058b17-2870-4845-9d18-93a8adf227c0.png';
+    logoImg.src = '/lovable-uploads/2fa6123b-b4cf-4f40-ab0b-a089850b5ad8.png';
     logoImg.onload = () => {
       logoImageRef.current = logoImg;
       createParticles();
@@ -109,24 +109,18 @@ const LogoParticles = () => {
         particle.vx *= 0.99;
         particle.vy *= 0.99;
 
-        // Draw logo with gradient effect
+        // Draw clean logo with proper transparency
         ctx.save();
         ctx.translate(particle.x, particle.y);
         ctx.rotate(particle.rotation);
         ctx.scale(particle.scale, particle.scale);
         
-        // Create gradient mask effect
-        const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, particle.size);
-        gradient.addColorStop(0, `hsla(154, 70%, 45%, ${particle.opacity})`);
-        gradient.addColorStop(0.5, `hsla(200, 70%, 50%, ${particle.opacity * 0.8})`);
-        gradient.addColorStop(1, `hsla(271, 76%, 53%, ${particle.opacity * 0.6})`);
-        
-        // Draw logo with blend mode
-        ctx.globalCompositeOperation = 'source-over';
+        // Set transparency and draw the logo cleanly
         ctx.globalAlpha = particle.opacity;
+        ctx.globalCompositeOperation = 'source-over';
         
-        // Draw the logo
-        const logoSize = particle.size * 2;
+        // Draw the logo at proper size
+        const logoSize = particle.size * 1.5;
         ctx.drawImage(
           logoImageRef.current,
           -logoSize / 2,
@@ -134,11 +128,6 @@ const LogoParticles = () => {
           logoSize,
           logoSize
         );
-
-        // Apply gradient overlay
-        ctx.globalCompositeOperation = 'multiply';
-        ctx.fillStyle = gradient;
-        ctx.fillRect(-logoSize / 2, -logoSize / 2, logoSize, logoSize);
         
         ctx.restore();
 
