@@ -36,7 +36,7 @@ const Hero = () => {
             <span className={`block text-foreground transition-all duration-700 delay-300 ${heroVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
               Welcome to
             </span>
-            <span className={`block bg-gradient-to-r from-seagram-green via-violet-purple to-seagram-green bg-clip-text text-transparent animate-pulse transition-all duration-700 delay-500 ${heroVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
+            <span className={`block bg-gradient-to-r from-seagram-green via-violet-purple to-seagram-green bg-clip-text text-transparent transition-all duration-700 delay-500 ${heroVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
               Eternals Studio
             </span>
           </h1>
