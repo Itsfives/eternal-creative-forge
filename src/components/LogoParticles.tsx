@@ -113,15 +113,19 @@ const LogoParticles = () => {
         particle.vx *= 0.99;
         particle.vy *= 0.99;
 
-        // Draw clean logo with proper transparency
+        // Draw logo with better visibility
         ctx.save();
         ctx.translate(particle.x, particle.y);
         ctx.rotate(particle.rotation);
         ctx.scale(particle.scale, particle.scale);
         
-        // Set transparency and draw the logo cleanly
-        ctx.globalAlpha = particle.opacity;
+        // Set higher opacity and normal blending for better visibility
+        ctx.globalAlpha = Math.max(0.6, particle.opacity);
         ctx.globalCompositeOperation = 'source-over';
+        
+        // Add subtle glow effect
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.3)';
+        ctx.shadowBlur = 10;
         
         // Draw the logo at proper size
         const logoSize = particle.size * 1.5;
