@@ -5,11 +5,13 @@ import AnimatedCounter from "./AnimatedCounter";
 import LogoParticles from "./LogoParticles";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
   const [heroRef, heroVisible] = useScrollAnimation(0.1);
   const [statsRef, statsVisible] = useScrollAnimation(0.3);
   const { trackInteraction, trackBusinessEvent } = useAnalytics();
+  const navigate = useNavigate();
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -60,6 +62,7 @@ const Hero = () => {
               onClick={() => {
                 trackInteraction('hero_cta', 'click');
                 trackBusinessEvent('project_inquiry_started', 'conversion');
+                navigate('/contact');
               }}
             >
               Start Your Project
@@ -73,6 +76,7 @@ const Hero = () => {
               onClick={() => {
                 trackInteraction('hero_video', 'click');
                 trackBusinessEvent('portfolio_viewed', 'engagement');
+                window.open('https://www.youtube.com/@eternals_studio', '_blank');
               }}
             >
               <Play className="mr-2 h-5 w-5 group-hover:scale-125 group-hover:rotate-12 transition-all duration-300" />
