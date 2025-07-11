@@ -120,15 +120,15 @@ const LogoParticles = () => {
         ctx.scale(particle.scale, particle.scale);
         
         // Set higher opacity and normal blending for better visibility
-        ctx.globalAlpha = Math.max(0.6, particle.opacity);
+        ctx.globalAlpha = Math.max(0.7, particle.opacity);
         ctx.globalCompositeOperation = 'source-over';
         
-        // Add subtle glow effect
-        ctx.shadowColor = 'rgba(255, 255, 255, 0.3)';
-        ctx.shadowBlur = 10;
+        // Add seafoam green glow effect
+        ctx.shadowColor = 'rgba(56, 178, 172, 0.6)';
+        ctx.shadowBlur = 15;
         
-        // Draw the logo at proper size
-        const logoSize = particle.size * 1.5;
+        // Draw the logo at proper proportional size
+        const logoSize = particle.size * 1.2;
         ctx.drawImage(
           logoImageRef.current,
           -logoSize / 2,
@@ -151,9 +151,9 @@ const LogoParticles = () => {
               particle.x, particle.y,
               otherParticle.x, otherParticle.y
             );
-            gradient.addColorStop(0, `hsla(154, 70%, 45%, ${alpha})`);
-            gradient.addColorStop(0.5, `hsla(200, 70%, 50%, ${alpha * 0.8})`);
-            gradient.addColorStop(1, `hsla(271, 76%, 53%, ${alpha * 0.6})`);
+            gradient.addColorStop(0, `rgba(56, 178, 172, ${alpha})`); // Seafoam green
+            gradient.addColorStop(0.5, `rgba(139, 69, 219, ${alpha * 0.8})`); // Violet purple
+            gradient.addColorStop(1, `rgba(56, 178, 172, ${alpha * 0.6})`); // Seafoam green
             
             ctx.beginPath();
             ctx.moveTo(particle.x, particle.y);
