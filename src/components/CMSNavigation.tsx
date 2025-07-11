@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import PageEditor from "./PageEditor";
 import PortfolioEditor from "./PortfolioEditor";
+import SitePreview from "./SitePreview";
 
 interface CMSNavigationProps {
   onSelectSection: (section: string) => void;
@@ -121,6 +122,13 @@ const CMSNavigation = ({ onSelectSection, activeSection }: CMSNavigationProps) =
       title: "Users & Permissions",
       icon: Users,
       description: "Manage user accounts and access levels",
+      count: 0
+    },
+    {
+      id: "preview",
+      title: "Site Access Preview",
+      icon: Globe,
+      description: "See what different users can access",
       count: 0
     }
   ];
@@ -240,6 +248,9 @@ const CMSNavigation = ({ onSelectSection, activeSection }: CMSNavigationProps) =
           </CardContent>
         </Card>
       )}
+
+      {/* Site Preview */}
+      {activeSection === "preview" && <SitePreview />}
 
       {/* Portfolio Quick View */}
       {activeSection === "portfolio" && (

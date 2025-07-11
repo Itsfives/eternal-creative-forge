@@ -8,7 +8,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 
 const CMS = () => {
   const [isDirty, setIsDirty] = useState(false);
-  const [activeSection, setActiveSection] = useState("pages");
+  const [activeSection, setActiveSection] = useState("overview");
   const { trackInteraction, trackBusinessEvent } = useAnalytics();
 
   const handleSave = () => {

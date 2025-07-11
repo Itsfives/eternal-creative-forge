@@ -33,6 +33,10 @@ const LogoParticles = () => {
     logoImg.onload = () => {
       logoImageRef.current = logoImg;
       createParticles();
+      animate();
+    };
+    logoImg.onerror = () => {
+      console.log('Logo image failed to load');
     };
 
     const resizeCanvas = () => {
@@ -169,7 +173,6 @@ const LogoParticles = () => {
     };
 
     resizeCanvas();
-    animate();
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
