@@ -14,6 +14,153 @@ export type Database = {
   }
   public: {
     Tables: {
+      media: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          file_size: number
+          file_type: string
+          filename: string
+          id: string
+          original_name: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          file_size: number
+          file_type: string
+          filename: string
+          id?: string
+          original_name: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          file_size?: number
+          file_type?: string
+          filename?: string
+          id?: string
+          original_name?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pages: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          meta_description: string | null
+          slug: string
+          status: string
+          template: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          meta_description?: string | null
+          slug: string
+          status?: string
+          template?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          meta_description?: string | null
+          slug?: string
+          status?: string
+          template?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      portfolios: {
+        Row: {
+          category: string
+          challenges: string | null
+          client: string | null
+          completed_date: string | null
+          created_at: string
+          description: string | null
+          featured: boolean | null
+          github_url: string | null
+          id: string
+          images: string[] | null
+          live_url: string | null
+          results: string | null
+          slug: string
+          solutions: string | null
+          status: string
+          technologies: string[] | null
+          testimonial: string | null
+          testimonial_author: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          challenges?: string | null
+          client?: string | null
+          completed_date?: string | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          github_url?: string | null
+          id?: string
+          images?: string[] | null
+          live_url?: string | null
+          results?: string | null
+          slug: string
+          solutions?: string | null
+          status?: string
+          technologies?: string[] | null
+          testimonial?: string | null
+          testimonial_author?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          challenges?: string | null
+          client?: string | null
+          completed_date?: string | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          github_url?: string | null
+          id?: string
+          images?: string[] | null
+          live_url?: string | null
+          results?: string | null
+          slug?: string
+          solutions?: string | null
+          status?: string
+          technologies?: string[] | null
+          testimonial?: string | null
+          testimonial_author?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
