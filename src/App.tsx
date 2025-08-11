@@ -59,6 +59,9 @@ const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode;
 };
 
 const AppWithAnalytics = () => {
+  // Add console log to verify app is loading
+  console.log("App is loading successfully");
+  
   const [user, setUser] = useState<User | null>({
     id: "admin-1",
     email: "admin@example.com",
