@@ -24,30 +24,30 @@ const Contact = () => {
   const contactInfo = [
     {
       icon: Mail,
-      title: "Email",
-      content: "hello@eternalsstudio.com",
+      title: "Support",
+      content: "Eternalsanctuarygg@gmail.com",
       description: "Send us an email anytime",
-      action: "mailto:hello@eternalsstudio.com"
+      action: "mailto:Eternalsanctuarygg@gmail.com"
     },
     {
       icon: Phone,
-      title: "Phone",
-      content: "+1 (555) 123-4567",
-      description: "Mon-Fri from 8am to 5pm",
-      action: "tel:+15551234567"
+      title: "Connect",
+      content: "‪(240) 523-3976‬",
+      description: "Call us for project inquiries",
+      action: "tel:+12405233976"
     },
     {
       icon: MapPin,
-      title: "Office",
-      content: "123 Creative Street, Design City, DC 12345",
-      description: "Come say hello at our office",
-      action: "https://maps.google.com"
+      title: "Social Media",
+      content: "Follow us on Instagram, Discord & Twitter",
+      description: "Stay connected with our community",
+      action: "https://www.instagram.com/eternals_studiogg/"
     },
     {
       icon: Clock,
-      title: "Working Hours",
-      content: "Monday - Friday: 8:00 AM - 5:00 PM",
-      description: "We're here to help during business hours"
+      title: "Response Time",
+      content: "24-48 hours",
+      description: "We'll get back to you quickly"
     }
   ];
 
@@ -105,7 +105,7 @@ const Contact = () => {
               Get In Touch
             </h1>
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Ready to start your next project? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+              We'd love to hear from you! Reach out for inquiries, feedback, or collaboration opportunities. Let's create something amazing together.
             </p>
           </div>
         </section>

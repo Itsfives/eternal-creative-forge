@@ -11,64 +11,83 @@ const Portfolio = () => {
 
   const projects = [
     {
-      title: "EcoTech Solutions",
-      description: "A modern e-commerce platform for sustainable technology products with advanced filtering and payment integration.",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop",
-      tags: ["React", "Node.js", "Stripe", "MongoDB"],
-      category: "E-commerce",
+      title: "7 Cubed Films",
+      description: "Complete branding and visual identity package for 7 Cubed Films including logo design, promotional materials, and digital assets for their film production company.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=400,h=396,fit=crop/YNqO7k0WyEUyB3w6/77f3-AQEykV2w8vf9Gkzv.png",
+      tags: ["Branding", "Logo Design", "Visual Identity", "Film"],
+      category: "Branding",
+      liveUrl: "https://eternalvisuals.myportfolio.com/7-cubed-films-commission",
+      githubUrl: "#",
+      featured: true
+    },
+    {
+      title: "HP League",
+      description: "Esports league branding and visual identity including team logos, tournament graphics, and promotional materials for competitive gaming organization.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=400,h=396,fit=crop/YNqO7k0WyEUyB3w6/hp_league_avi-YrDlvXpP6gHPZ9KB.png",
+      tags: ["Esports", "Gaming", "Tournament Graphics", "Branding"],
+      category: "Esports",
       liveUrl: "#",
       githubUrl: "#",
       featured: true
     },
     {
-      title: "MedConnect",
-      description: "Healthcare platform connecting patients with medical professionals through secure video consultations.",
-      image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=600&h=400&fit=crop",
-      tags: ["React", "WebRTC", "Socket.io", "PostgreSQL"],
-      category: "Healthcare",
+      title: "Deceptive Grounds",
+      description: "Gaming brand visual identity and logo design for Deceptive Grounds, including social media assets and promotional graphics.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=400,h=396,fit=crop/YNqO7k0WyEUyB3w6/dg_avi-m5Kw9r0g6WUEeL1E.jpg",
+      tags: ["Gaming", "Logo Design", "Social Media", "Branding"],
+      category: "Gaming",
       liveUrl: "#",
       githubUrl: "#",
       featured: true
     },
     {
-      title: "FinanceFlow",
-      description: "Personal finance management dashboard with real-time analytics and budgeting tools.",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
-      tags: ["Vue.js", "D3.js", "Firebase", "Plaid API"],
-      category: "FinTech",
+      title: "Eternals GG",
+      description: "Complete branding package for Eternals gaming organization including team identity, merchandise design, and digital marketing materials.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=400,h=396,fit=crop/YNqO7k0WyEUyB3w6/dab21dff-54d2-443f-8116-92041be0886b_rw_1200-Yyv3b2NyzNsR7pVv.jpg",
+      tags: ["Gaming", "Team Branding", "Merchandise", "Digital Marketing"],
+      category: "Esports",
       liveUrl: "#",
       githubUrl: "#"
     },
     {
-      title: "EduHub",
-      description: "Online learning platform with interactive courses, progress tracking, and certification system.",
-      image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop",
-      tags: ["React", "GraphQL", "AWS", "MongoDB"],
-      category: "Education",
+      title: "DevilWolf Giveaway Winner",
+      description: "Special promotional graphics and winner announcement materials for DevilWolf community giveaway campaign.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=400,h=396,fit=crop/YNqO7k0WyEUyB3w6/9a852f5f-5b04-45dd-9305-300b4aaacf34_rw_1200-ALpnkb3j7XSbVr1V.jpg",
+      tags: ["Promotional Graphics", "Community", "Social Media", "Marketing"],
+      category: "Marketing",
       liveUrl: "#",
       githubUrl: "#"
     },
     {
-      title: "RestaurantPro",
-      description: "Complete restaurant management system with online ordering, inventory tracking, and analytics.",
-      image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&h=400&fit=crop",
-      tags: ["Next.js", "Prisma", "Stripe", "Vercel"],
-      category: "Restaurant",
+      title: "Shinto Gaming Club",
+      description: "Gaming club branding and visual identity including logo design, team graphics, and tournament promotional materials.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=400,h=384,fit=crop/YNqO7k0WyEUyB3w6/sgc-avi-02-dWxyk2D7NPCn19M9.jpg",
+      tags: ["Gaming Club", "Logo Design", "Tournament Graphics", "Team Identity"],
+      category: "Gaming",
       liveUrl: "#",
       githubUrl: "#"
     },
     {
-      title: "FitTracker",
-      description: "Fitness application with workout planning, progress tracking, and social features.",
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
-      tags: ["React Native", "Node.js", "MongoDB", "Redux"],
-      category: "Health & Fitness",
-      liveUrl: "#",
+      title: "Corbyn Altman",
+      description: "Personal branding and portfolio design for creative professional including logo design and digital presence optimization.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=284,h=255,fit=crop/YNqO7k0WyEUyB3w6/social-avatar-ca-AMqbkJ1bl7C87xWE.jpg",
+      tags: ["Personal Branding", "Portfolio Design", "Digital Presence", "Creative"],
+      category: "Personal Branding",
+      liveUrl: "https://corbynaltman.com/#work",
+      githubUrl: "#"
+    },
+    {
+      title: "InGloom Media",
+      description: "Media company branding and visual identity including logo design, brand guidelines, and digital marketing materials.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=284,h=255,fit=crop/YNqO7k0WyEUyB3w6/cw2cevgn_400x400-YZ9VkX2rnbt4wERz.jpg",
+      tags: ["Media Branding", "Logo Design", "Brand Guidelines", "Digital Marketing"],
+      category: "Branding",
+      liveUrl: "https://ingloommedia.com/",
       githubUrl: "#"
     }
   ];
 
-  const categories = ["All", "E-commerce", "Healthcare", "FinTech", "Education", "Restaurant", "Health & Fitness"];
+  const categories = ["All", "Branding", "Esports", "Gaming", "Marketing", "Personal Branding"];
 
   const filteredProjects = activeCategory === "All" 
     ? projects 

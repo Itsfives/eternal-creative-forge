@@ -44,15 +44,25 @@ const Hero = () => {
           </h1>
 
           {/* Subtitle with staggered animation */}
-          <p className={`max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground leading-relaxed transition-all duration-700 delay-700 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
-            Your vision, our expertise. We transform ideas into stunning digital experiences through 
-            <span className="text-seagram-green font-semibold hover:scale-105 inline-block transition-transform cursor-default"> coding</span>, 
-            <span className="text-violet-purple font-semibold hover:scale-105 inline-block transition-transform cursor-default"> design</span>, 
-            <span className="text-seagram-green font-semibold hover:scale-105 inline-block transition-transform cursor-default"> 3D modeling</span>, 
-            <span className="text-violet-purple font-semibold hover:scale-105 inline-block transition-transform cursor-default"> animation</span>, 
-            <span className="text-seagram-green font-semibold hover:scale-105 inline-block transition-transform cursor-default"> music</span>, and 
-            <span className="text-violet-purple font-semibold hover:scale-105 inline-block transition-transform cursor-default"> video editing</span>.
-          </p>
+          <div className={`max-w-4xl mx-auto space-y-4 transition-all duration-700 delay-700 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
+            <h2 className="text-2xl md:text-3xl font-semibold text-foreground">
+              Transform Your Vision into Reality
+            </h2>
+            <p className="text-lg md:text-xl text-muted-foreground italic">
+              Where Ideas Become Reality
+            </p>
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+              We are dedicated to enhancing the success of individuals and organizations across various fields, including business and esports, through our exceptional 
+              <span className="text-seagram-green font-semibold hover:scale-105 inline-block transition-transform cursor-default"> graphical expertise</span>. 
+              We understand that compelling visuals are essential in capturing attention and communicating ideas effectively. Whether it's creating stunning 
+              <span className="text-violet-purple font-semibold hover:scale-105 inline-block transition-transform cursor-default"> logos</span>, 
+              immersive 
+              <span className="text-seagram-green font-semibold hover:scale-105 inline-block transition-transform cursor-default"> esports graphics</span>, 
+              or engaging 
+              <span className="text-violet-purple font-semibold hover:scale-105 inline-block transition-transform cursor-default"> promotional materials</span>, 
+              our team is committed to delivering high-quality solutions that elevate brands and drive growth.
+            </p>
+          </div>
 
           {/* Enhanced CTA Buttons */}
           <div className={`flex flex-col sm:flex-row gap-4 justify-center items-center transition-all duration-700 delay-900 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
@@ -88,28 +98,28 @@ const Hero = () => {
           <div ref={statsRef} className={`mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 transition-all duration-1000 delay-1100 ${statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="text-center group hover:scale-105 transition-transform duration-300">
               <div className="text-3xl md:text-4xl font-bold text-seagram-green">
-                <AnimatedCounter end={500} suffix="+" />
+                <AnimatedCounter end={100} suffix="+" />
               </div>
               <div className="text-sm text-muted-foreground group-hover:text-seagram-green transition-colors">Projects Completed</div>
             </div>
             <div className="text-center group hover:scale-105 transition-transform duration-300">
               <div className="text-3xl md:text-4xl font-bold text-violet-purple">
-                <AnimatedCounter end={98} suffix="%" />
+                <AnimatedCounter end={50} suffix="+" />
               </div>
-              <div className="text-sm text-muted-foreground group-hover:text-violet-purple transition-colors">Client Satisfaction</div>
+              <div className="text-sm text-muted-foreground group-hover:text-violet-purple transition-colors">Happy Clients</div>
             </div>
             <div className="text-center group hover:scale-105 transition-transform duration-300">
               <div className="text-3xl md:text-4xl font-bold text-seagram-green">
-                <span className="text-2xl">24/</span>
-                <AnimatedCounter end={7} />
+                <AnimatedCounter end={5} suffix="+" />
               </div>
-              <div className="text-sm text-muted-foreground group-hover:text-seagram-green transition-colors">Support Available</div>
+              <div className="text-sm text-muted-foreground group-hover:text-seagram-green transition-colors">Years Experience</div>
             </div>
             <div className="text-center group hover:scale-105 transition-transform duration-300">
               <div className="text-3xl md:text-4xl font-bold text-violet-purple">
-                <AnimatedCounter end={5} suffix="+" />
+                <span className="text-2xl">24/</span>
+                <AnimatedCounter end={7} />
               </div>
-              <div className="text-sm text-muted-foreground group-hover:text-violet-purple transition-colors">Years Experience</div>
+              <div className="text-sm text-muted-foreground group-hover:text-violet-purple transition-colors">Support Available</div>
             </div>
           </div>
         </div>
