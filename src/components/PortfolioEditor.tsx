@@ -474,7 +474,7 @@ const PortfolioEditor = ({ projectId, onBack }: PortfolioEditorProps) => {
                 <Label htmlFor="status">Project Status</Label>
                 <Select 
                   value={projectData.status} 
-                  onValueChange={(value) => setProjectData({...projectData, status: value})}
+                  onValueChange={(value: "draft" | "published" | "archived") => setProjectData({...projectData, status: value as "draft" | "published"})}
                 >
                   <SelectTrigger>
                     <SelectValue />
