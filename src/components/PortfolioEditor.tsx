@@ -50,7 +50,7 @@ const PortfolioEditor = ({ projectId, onBack }: PortfolioEditorProps) => {
           title: existingProject.title,
           slug: existingProject.slug,
           category: existingProject.category,
-          status: existingProject.status as "draft" | "published",
+          status: (existingProject.status as "draft" | "published") || "draft",
           featured: existingProject.featured || false,
           client: existingProject.client || "",
           completedDate: existingProject.completed_date || new Date().toISOString().split('T')[0],
