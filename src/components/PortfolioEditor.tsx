@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { ArrowLeft, Save, Eye, Plus, X, Upload } from "lucide-react";
+import { usePortfolio } from "@/hooks/usePortfolio";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface PortfolioEditorProps {
   projectId?: string;
@@ -16,11 +19,14 @@ interface PortfolioEditorProps {
 }
 
 const PortfolioEditor = ({ projectId, onBack }: PortfolioEditorProps) => {
+  const { createPortfolio, updatePortfolio, portfolios } = usePortfolio();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
   const [projectData, setProjectData] = useState({
-    title: projectId === "new" ? "" : "Sample Project",
-    slug: projectId === "new" ? "" : "sample-project",
+    title: "",
+    slug: "",
     category: "web-development",
-    status: "draft",
+    status: "draft" as "draft" | "published",
     featured: false,
     client: "",
     completedDate: new Date().toISOString().split('T')[0],
@@ -35,6 +41,33 @@ const PortfolioEditor = ({ projectId, onBack }: PortfolioEditorProps) => {
     solutions: "",
     results: ""
   });
+
+  useEffect(() => {
+    if (projectId && projectId !== "new") {
+      const existingProject = portfolios.find(p => p.id === projectId);
+      if (existingProject) {
+        setProjectData({
+          title: existingProject.title,
+          slug: existingProject.slug,
+          category: existingProject.category,
+          status: existingProject.status as "draft" | "published",
+          featured: existingProject.featured || false,
+          client: existingProject.client || "",
+          completedDate: existingProject.completed_date || new Date().toISOString().split('T')[0],
+          description: existingProject.description || "",
+          technologies: existingProject.technologies || [],
+          images: existingProject.images || [],
+          liveUrl: existingProject.live_url || "",
+          githubUrl: existingProject.github_url || "",
+          testimonial: existingProject.testimonial || "",
+          testimonialAuthor: existingProject.testimonial_author || "",
+          challenges: existingProject.challenges || "",
+          solutions: existingProject.solutions || "",
+          results: existingProject.results || ""
+        });
+      }
+    }
+  }, [projectId, portfolios]);
 
   const [newTechnology, setNewTechnology] = useState("");
   const [newImage, setNewImage] = useState("");
@@ -82,9 +115,61 @@ const PortfolioEditor = ({ projectId, onBack }: PortfolioEditorProps) => {
     });
   };
 
-  const handleSave = () => {
-    console.log("Saving portfolio project:", projectData);
-    // Add actual save logic here
+  const handleSave = async () => {
+    if (!projectData.title || !projectData.slug) {
+      toast({
+        title: "Error",
+        description: "Title and slug are required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to save projects",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const portfolioData = {
+        title: projectData.title,
+        slug: projectData.slug,
+        category: projectData.category,
+        status: projectData.status,
+        featured: projectData.featured,
+        client: projectData.client || null,
+        completed_date: projectData.completedDate || null,
+        description: projectData.description || null,
+        technologies: projectData.technologies,
+        images: projectData.images,
+        live_url: projectData.liveUrl || null,
+        github_url: projectData.githubUrl || null,
+        testimonial: projectData.testimonial || null,
+        testimonial_author: projectData.testimonialAuthor || null,
+        challenges: projectData.challenges || null,
+        solutions: projectData.solutions || null,
+        results: projectData.results || null,
+        user_id: user.id
+      };
+
+      if (projectId === "new") {
+        await createPortfolio(portfolioData);
+      } else {
+        await updatePortfolio(projectId, portfolioData);
+      }
+      
+      onBack();
+    } catch (error) {
+      console.error('Error saving portfolio:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -110,9 +195,13 @@ const PortfolioEditor = ({ projectId, onBack }: PortfolioEditorProps) => {
             <Eye className="w-4 h-4 mr-2" />
             Preview
           </Button>
-          <Button onClick={handleSave} className="bg-seagram-green hover:bg-seagram-green/90">
+          <Button 
+            onClick={handleSave} 
+            disabled={loading}
+            className="bg-seagram-green hover:bg-seagram-green/90"
+          >
             <Save className="w-4 h-4 mr-2" />
-            Save Project
+            {loading ? "Saving..." : "Save Project"}
           </Button>
         </div>
       </div>

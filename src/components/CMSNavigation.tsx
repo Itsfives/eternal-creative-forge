@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import PageEditor from "./PageEditor";
 import PortfolioEditor from "./PortfolioEditor";
 import SitePreview from "./SitePreview";
+import { usePortfolio } from "@/hooks/usePortfolio";
 
 interface CMSNavigationProps {
   onSelectSection: (section: string) => void;
@@ -32,6 +33,7 @@ const CMSNavigation = ({ onSelectSection, activeSection }: CMSNavigationProps) =
   const [selectedPageId, setSelectedPageId] = useState<string | undefined>();
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
+  const { portfolios, deletePortfolio } = usePortfolio();
 
   const pages = [
     { id: "home", title: "Home Page", status: "Published", lastModified: "2 hours ago" },
@@ -87,7 +89,7 @@ const CMSNavigation = ({ onSelectSection, activeSection }: CMSNavigationProps) =
       title: "Portfolio",
       icon: Image,
       description: "Manage portfolio projects and case studies",
-      count: 8
+      count: portfolios.length
     },
     {
       id: "media",
@@ -273,12 +275,11 @@ const CMSNavigation = ({ onSelectSection, activeSection }: CMSNavigationProps) =
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 gap-4">
-              {[
-                { id: "project-1", title: "E-commerce Platform", category: "Web Development", status: "Published", featured: true },
-                { id: "project-2", title: "Mobile Banking App", category: "Mobile App", status: "Published", featured: false },
-                { id: "project-3", title: "Brand Identity Design", category: "Branding", status: "Draft", featured: true },
-                { id: "project-4", title: "SaaS Dashboard", category: "UI/UX Design", status: "Published", featured: false }
-              ].map((project) => (
+              {portfolios
+                .filter(project => 
+                  project.title.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                .map((project) => (
                 <div 
                   key={project.id}
                   className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors"
@@ -295,8 +296,8 @@ const CMSNavigation = ({ onSelectSection, activeSection }: CMSNavigationProps) =
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge 
-                      variant={project.status === "Published" ? "default" : "secondary"}
-                      className={project.status === "Published" ? "bg-seagram-green hover:bg-seagram-green/90" : ""}
+                      variant={project.status === "published" ? "default" : "secondary"}
+                      className={project.status === "published" ? "bg-seagram-green hover:bg-seagram-green/90" : ""}
                     >
                       {project.status}
                     </Badge>
@@ -311,7 +312,12 @@ const CMSNavigation = ({ onSelectSection, activeSection }: CMSNavigationProps) =
                       <Button size="sm" variant="ghost">
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive">
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => deletePortfolio(project.id)}
+                      >
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
