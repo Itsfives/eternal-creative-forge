@@ -1,11 +1,19 @@
 
 import Navigation from "../components/Navigation";
 import TeamSection from "../components/TeamSection";
+import AboutEditor from "../components/AboutEditor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, Target, Award, Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Users, Target, Award, Heart, Settings } from "lucide-react";
+import { usePortfolio } from "@/hooks/usePortfolio";
+import { useState } from "react";
 
 const About = () => {
+  const [showEditor, setShowEditor] = useState(false);
+  const { portfolios } = usePortfolio();
+  const projectsCompleted = portfolios.filter(p => p.status === 'published').length;
+
   const services = [
     {
       icon: Target,
@@ -29,6 +37,26 @@ const About = () => {
     }
   ];
 
+  if (showEditor) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="pt-20 p-8">
+          <div className="mb-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowEditor(false)}
+              className="mb-4"
+            >
+              ← Back to About Page
+            </Button>
+          </div>
+          <AboutEditor />
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,6 +66,17 @@ const About = () => {
         {/* Hero Section */}
         <section className="py-16 px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
+            <div className="flex justify-center mb-6">
+              <Button 
+                onClick={() => setShowEditor(true)}
+                variant="outline"
+                size="sm"
+                className="hover:bg-seagram-green hover:text-white"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Edit About Page
+              </Button>
+            </div>
             <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-seagram-green to-violet-purple bg-clip-text text-transparent mb-6">
               About Eternals Studio
             </h1>
@@ -65,7 +104,7 @@ const About = () => {
               </div>
               <div className="space-y-6">
                 <div className="bg-card p-6 rounded-lg border">
-                  <h3 className="text-2xl font-bold text-seagram-green mb-2">15+</h3>
+                  <h3 className="text-2xl font-bold text-seagram-green mb-2">{projectsCompleted}+</h3>
                   <p className="text-muted-foreground">Projects Completed</p>
                 </div>
                 <div className="bg-card p-6 rounded-lg border">
