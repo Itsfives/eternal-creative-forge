@@ -5,89 +5,137 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Github, Filter } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Portfolio = () => {
   const [activeCategory, setActiveCategory] = useState("All");
+  const navigate = useNavigate();
 
   const projects = [
     {
-      title: "7 Cubed Films",
-      description: "Complete branding and visual identity package for 7 Cubed Films including logo design, promotional materials, and digital assets for their film production company.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=400,h=396,fit=crop/YNqO7k0WyEUyB3w6/77f3-AQEykV2w8vf9Gkzv.png",
-      tags: ["Branding", "Logo Design", "Visual Identity", "Film"],
-      category: "Branding",
-      liveUrl: "https://eternalvisuals.myportfolio.com/7-cubed-films-commission",
-      githubUrl: "#",
+      id: "eternals-studio",
+      title: "Eternals Studio",
+      description: "A GFX, VFX, Coding, Music Production Studio!",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/img_1795-YNqykO6O7yIrvvGr.jpg",
+      tags: ["GFX", "VFX", "Coding", "Music Production"],
+      category: "Studio",
+      year: "2024",
       featured: true
     },
     {
-      title: "HP League",
-      description: "Esports league branding and visual identity including team logos, tournament graphics, and promotional materials for competitive gaming organization.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=400,h=396,fit=crop/YNqO7k0WyEUyB3w6/hp_league_avi-YrDlvXpP6gHPZ9KB.png",
-      tags: ["Esports", "Gaming", "Tournament Graphics", "Branding"],
+      id: "eternals-gg",
+      title: "Eternals GGs",
+      description: "A Content Creation and Esports Organization based in a wide variety of competitive games. Also our parent organization. They also provide content across multiple platforms.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/e795ed40-7f78-4cc9-b0eb-11931e05891f_rw_1920-mp8vZO4gvOc1Vazm.jpg",
+      tags: ["Esports", "Content Creation", "Organization", "Gaming"],
       category: "Esports",
-      liveUrl: "#",
-      githubUrl: "#",
+      year: "2024",
       featured: true
     },
     {
+      id: "deceptive-grounds",
       title: "Deceptive Grounds",
-      description: "Gaming brand visual identity and logo design for Deceptive Grounds, including social media assets and promotional graphics.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=400,h=396,fit=crop/YNqO7k0WyEUyB3w6/dg_avi-m5Kw9r0g6WUEeL1E.jpg",
-      tags: ["Gaming", "Logo Design", "Social Media", "Branding"],
+      description: "A multi-game based community. They host servers on games such as Garry's Mod and Arma 3.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/img_1853-AMqbkp9joNSR2Bl2.jpg",
+      tags: ["Gaming", "Community", "Servers", "Multi-game"],
       category: "Gaming",
-      liveUrl: "#",
-      githubUrl: "#",
+      year: "2024"
+    },
+    {
+      id: "team-uk-ireland",
+      title: "Team UK & Ireland",
+      description: "A new upcoming Organization that represents the spirit of Ireland and United Kingdom together.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/uki-YKb6q3vNMoiGV4V8.png",
+      tags: ["Organization", "UK", "Ireland", "Gaming"],
+      category: "Esports",
+      year: "2024"
+    },
+    {
+      id: "shinto-gaming-club",
+      title: "Shinto Gaming Club",
+      description: "A new esports gaming club that is partaking in various esports tournaments.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/img_1907-AGB6kk44XzULb0rL.jpg",
+      tags: ["Esports", "Gaming Club", "Tournaments", "Competitive"],
+      category: "Esports",
+      year: "2024"
+    },
+    {
+      id: "hp-league",
+      title: "HP League",
+      description: "A new Esports league that was partaking in XDefiant and PUBG.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/ddssd-YlevxJlDrxTEV0bG.png",
+      tags: ["Esports", "League", "XDefiant", "PUBG"],
+      category: "Esports",
+      year: "2024"
+    },
+    {
+      id: "neverfps",
+      title: "NeverFPS",
+      description: "A variety streamer turned game developer.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/nevers-kick-banner-AGB6RE277PfQ45LM.jpg",
+      tags: ["Streaming", "Game Development", "Variety", "Content"],
+      category: "Content Creation",
+      year: "2024"
+    },
+    {
+      id: "thumbnails",
+      title: "Thumbnails",
+      description: "Thumbnails are used to engage and draw audiences to a particular video.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop,trim=0;129.31185944363105;0;16.866764275256223/YNqO7k0WyEUyB3w6/c3f4f288-9f7c-4ec9-89db-e3088a16a602_rw_1920-YrDle0221nILr5K9.jpg",
+      tags: ["Design", "Thumbnails", "Video", "Engagement"],
+      category: "Design",
+      year: "2024"
+    },
+    {
+      id: "3d-work",
+      title: "3D Work",
+      description: "This is a collection of our completed 3D Work.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=440,fit=crop,trim=267.3267326732673;0;324.3564356435644;0/YNqO7k0WyEUyB3w6/gif-AR0yxZWlxjHjRnnn.png",
+      tags: ["3D", "Modeling", "Design", "Visualization"],
+      category: "3D",
+      year: "2024"
+    },
+    {
+      id: "7-cubed-films",
+      title: "7 Cubed Films",
+      description: "A SFM animation artist that specializes in a Star Wars: The Clone Wars setting and has over 5+ Million Views",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=600,fit=crop/YNqO7k0WyEUyB3w6/77f1-AoPvMlwkLbFo9JGJ.png",
+      tags: ["Animation", "SFM", "Star Wars", "Film"],
+      category: "Animation",
+      year: "2024",
       featured: true
     },
     {
-      title: "Eternals GG",
-      description: "Complete branding package for Eternals gaming organization including team identity, merchandise design, and digital marketing materials.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=400,h=396,fit=crop/YNqO7k0WyEUyB3w6/dab21dff-54d2-443f-8116-92041be0886b_rw_1200-Yyv3b2NyzNsR7pVv.jpg",
-      tags: ["Gaming", "Team Branding", "Merchandise", "Digital Marketing"],
-      category: "Esports",
-      liveUrl: "#",
-      githubUrl: "#"
+      id: "posters",
+      title: "Posters",
+      description: "Posters were made as an advertisement tool to help people engage in the esports communities and drive engagement.",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=776,fit=crop/YNqO7k0WyEUyB3w6/c4a83127-4a3e-4f60-9ba8-8dba90f43791_rw_1200-AQEyOM9p1yF9GWwO.jpg",
+      tags: ["Design", "Posters", "Advertising", "Esports"],
+      category: "Design",
+      year: "2024"
     },
     {
-      title: "DevilWolf Giveaway Winner",
-      description: "Special promotional graphics and winner announcement materials for DevilWolf community giveaway campaign.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=400,h=396,fit=crop/YNqO7k0WyEUyB3w6/9a852f5f-5b04-45dd-9305-300b4aaacf34_rw_1200-ALpnkb3j7XSbVr1V.jpg",
-      tags: ["Promotional Graphics", "Community", "Social Media", "Marketing"],
-      category: "Marketing",
-      liveUrl: "#",
-      githubUrl: "#"
+      id: "whysper",
+      title: "ULoveWhysper",
+      description: "A content creator and competitive player who steamed from Apex to Marvel Rivals!",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=709,h=384,fit=crop/YNqO7k0WyEUyB3w6/whysper-YbNqBQR7ykClLJ2q.jpg",
+      tags: ["Content Creation", "Streaming", "Gaming", "Competitive"],
+      category: "Content Creation",
+      year: "2025",
+      featured: true
     },
     {
-      title: "Shinto Gaming Club",
-      description: "Gaming club branding and visual identity including logo design, team graphics, and tournament promotional materials.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=400,h=384,fit=crop/YNqO7k0WyEUyB3w6/sgc-avi-02-dWxyk2D7NPCn19M9.jpg",
-      tags: ["Gaming Club", "Logo Design", "Tournament Graphics", "Team Identity"],
+      id: "midas-networks",
+      title: "Midas Networks",
+      description: "A Multi-Game Hosting Network based in Garry's Mod, FiveM, Arma, Squad and more!",
+      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=709,h=384,fit=crop/YNqO7k0WyEUyB3w6/midas-for-website-Yyv0nV0WMjCMk3pq.jpg",
+      tags: ["Gaming", "Hosting", "Network", "Multi-Game"],
       category: "Gaming",
-      liveUrl: "#",
-      githubUrl: "#"
-    },
-    {
-      title: "Corbyn Altman",
-      description: "Personal branding and portfolio design for creative professional including logo design and digital presence optimization.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=284,h=255,fit=crop/YNqO7k0WyEUyB3w6/social-avatar-ca-AMqbkJ1bl7C87xWE.jpg",
-      tags: ["Personal Branding", "Portfolio Design", "Digital Presence", "Creative"],
-      category: "Personal Branding",
-      liveUrl: "https://corbynaltman.com/#work",
-      githubUrl: "#"
-    },
-    {
-      title: "InGloom Media",
-      description: "Media company branding and visual identity including logo design, brand guidelines, and digital marketing materials.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=284,h=255,fit=crop/YNqO7k0WyEUyB3w6/cw2cevgn_400x400-YZ9VkX2rnbt4wERz.jpg",
-      tags: ["Media Branding", "Logo Design", "Brand Guidelines", "Digital Marketing"],
-      category: "Branding",
-      liveUrl: "https://ingloommedia.com/",
-      githubUrl: "#"
+      year: "2025"
     }
   ];
 
-  const categories = ["All", "Branding", "Esports", "Gaming", "Marketing", "Personal Branding"];
+  const categories = ["All", "Studio", "Esports", "Gaming", "Content Creation", "Design", "3D", "Animation"];
 
   const filteredProjects = activeCategory === "All" 
     ? projects 
@@ -158,8 +206,12 @@ const Portfolio = () => {
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredProjects.map((project, index) => (
-                <Card key={index} className="overflow-hidden hover:shadow-xl transition-all duration-500 group hover-lift animate-fade-in"
-                      style={{ animationDelay: `${index * 100}ms` }}>
+                <Card 
+                  key={index} 
+                  className="overflow-hidden hover:shadow-xl transition-all duration-500 group hover-lift animate-fade-in cursor-pointer"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                  onClick={() => navigate(`/portfolio/${project.id}`)}
+                >
                   <div className="relative overflow-hidden">
                     {project.featured && (
                       <div className="absolute top-4 left-4 z-10">
@@ -173,11 +225,13 @@ const Portfolio = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-                      <Button size="sm" variant="secondary" className="bg-white/90 hover:bg-white hover:scale-110 transition-all">
+                      <Button 
+                        size="sm" 
+                        variant="secondary" 
+                        className="bg-white/90 hover:bg-white hover:scale-110 transition-all"
+                        onClick={() => navigate(`/portfolio/${project.id}`)}
+                      >
                         <ExternalLink className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="secondary" className="bg-white/90 hover:bg-white hover:scale-110 transition-all">
-                        <Github className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>

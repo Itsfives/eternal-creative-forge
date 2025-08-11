@@ -1,7 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, Quote } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
 
 const Testimonials = () => {
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  
   const testimonials = [
     {
       content: "I had such a wonderful time working with Fives when it came to making my graphics, at no point did I feel rushed or hurried into giving design ideas and he even gave some of his own input allowing for a high quality design in the long run! I am super happy with how my logo's came out as well as the price for what I received them at! If your looking for fantastic graphics and having seen the entire teams portfolio I can happily tell you all that these individuals here who create Graphics are arguably the best at what they do here!",
@@ -37,59 +41,88 @@ const Testimonials = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <Card key={index} className="p-6 hover:shadow-xl transition-all duration-500 hover-lift">
-              <CardContent className="p-0">
-                <div className="flex items-center mb-4">
-                  <Quote className="w-8 h-8 text-seagram-green mr-2" />
-                  <div className="flex">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
+        <div className="relative">
+          <Card className="p-6 hover:shadow-xl transition-all duration-500 hover-lift max-w-4xl mx-auto">
+            <CardContent className="p-0">
+              <div className="flex items-center mb-4">
+                <Quote className="w-8 h-8 text-seagram-green mr-2" />
+                <div className="flex">
+                  {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
+                  ))}
+                </div>
+              </div>
+
+              {testimonials[currentTestimonial].highlights && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-3 text-seagram-green">
+                    10/10 service.
+                  </h3>
+                  <ul className="space-y-2">
+                    {testimonials[currentTestimonial].highlights.map((highlight, idx) => (
+                      <li key={idx} className="text-sm text-muted-foreground flex items-start">
+                        <span className="text-seagram-green mr-2">•</span>
+                        {highlight}
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
+              )}
 
-                {testimonial.highlights && (
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-3 text-seagram-green">
-                      10/10 service.
-                    </h3>
-                    <ul className="space-y-2">
-                      {testimonial.highlights.map((highlight, idx) => (
-                        <li key={idx} className="text-sm text-muted-foreground flex items-start">
-                          <span className="text-seagram-green mr-2">•</span>
-                          {highlight}
-                        </li>
-                      ))}
-                    </ul>
+              <blockquote className="text-muted-foreground mb-6 leading-relaxed">
+                "{testimonials[currentTestimonial].content}"
+              </blockquote>
+
+              <div className="flex items-center">
+                <img
+                  src={testimonials[currentTestimonial].avatar}
+                  alt={testimonials[currentTestimonial].author}
+                  className="w-12 h-12 rounded-full mr-4 object-cover"
+                />
+                <div>
+                  <div className="font-semibold text-foreground">
+                    {testimonials[currentTestimonial].author}
                   </div>
-                )}
-
-                <blockquote className="text-muted-foreground mb-6 leading-relaxed">
-                  "{testimonial.content}"
-                </blockquote>
-
-                <div className="flex items-center">
-                  <img
-                    src={testimonial.avatar}
-                    alt={testimonial.author}
-                    className="w-12 h-12 rounded-full mr-4 object-cover"
-                  />
-                  <div>
-                    <div className="font-semibold text-foreground">
-                      {testimonial.author}
+                  {testimonials[currentTestimonial].role && (
+                    <div className="text-sm text-muted-foreground">
+                      {testimonials[currentTestimonial].role}
                     </div>
-                    {testimonial.role && (
-                      <div className="text-sm text-muted-foreground">
-                        {testimonial.role}
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Navigation Arrows */}
+          <div className="flex justify-center gap-4 mt-8">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setCurrentTestimonial(currentTestimonial === 0 ? testimonials.length - 1 : currentTestimonial - 1)}
+              className="hover:border-seagram-green hover:text-seagram-green"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <div className="flex items-center gap-2">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentTestimonial(index)}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    index === currentTestimonial ? 'bg-seagram-green' : 'bg-muted-foreground/30'
+                  }`}
+                />
+              ))}
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setCurrentTestimonial(currentTestimonial === testimonials.length - 1 ? 0 : currentTestimonial + 1)}
+              className="hover:border-seagram-green hover:text-seagram-green"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
 
         <div className="text-center mt-12">

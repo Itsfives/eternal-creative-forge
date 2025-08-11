@@ -8,6 +8,7 @@ import { useAnalytics } from "./hooks/useAnalytics";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Portfolio from "./pages/Portfolio";
+import ProjectDetail from "./pages/ProjectDetail";
 import Contact from "./pages/Contact";
 import ClientPortal from "./pages/ClientPortal";
 import CMS from "./pages/CMS";
@@ -92,6 +93,7 @@ const AppWithAnalytics = () => {
         <Route path="/" element={<Index />} />
         <Route path="/about" element={<About />} />
         <Route path="/portfolio" element={<Portfolio />} />
+        <Route path="/portfolio/:projectId" element={<ProjectDetail />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/admin" element={
           <ProtectedRoute requiredRole="admin">
