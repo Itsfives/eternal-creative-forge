@@ -1,147 +1,33 @@
-
-import Navigation from "../components/Navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Github, Filter } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ExternalLink, Github, Loader2, Filter } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { usePortfolio } from "@/hooks/usePortfolio";
+import Navigation from "../components/Navigation";
 
 const Portfolio = () => {
-  const [activeCategory, setActiveCategory] = useState("All");
-  const navigate = useNavigate();
+  const [filter, setFilter] = useState("all");
+  const { portfolios, loading } = usePortfolio();
 
-  const projects = [
-    {
-      id: "eternals-studio",
-      title: "Eternals Studio",
-      description: "A GFX, VFX, Coding, Music Production Studio!",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/img_1795-YNqykO6O7yIrvvGr.jpg",
-      tags: ["GFX", "VFX", "Coding", "Music Production"],
-      category: "Studio",
-      year: "2024",
-      featured: true
-    },
-    {
-      id: "eternals-gg",
-      title: "Eternals GGs",
-      description: "A Content Creation and Esports Organization based in a wide variety of competitive games. Also our parent organization. They also provide content across multiple platforms.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/e795ed40-7f78-4cc9-b0eb-11931e05891f_rw_1920-mp8vZO4gvOc1Vazm.jpg",
-      tags: ["Esports", "Content Creation", "Organization", "Gaming"],
-      category: "Esports",
-      year: "2024",
-      featured: true
-    },
-    {
-      id: "deceptive-grounds",
-      title: "Deceptive Grounds",
-      description: "A multi-game based community. They host servers on games such as Garry's Mod and Arma 3.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/img_1853-AMqbkp9joNSR2Bl2.jpg",
-      tags: ["Gaming", "Community", "Servers", "Multi-game"],
-      category: "Gaming",
-      year: "2024"
-    },
-    {
-      id: "team-uk-ireland",
-      title: "Team UK & Ireland",
-      description: "A new upcoming Organization that represents the spirit of Ireland and United Kingdom together.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/uki-YKb6q3vNMoiGV4V8.png",
-      tags: ["Organization", "UK", "Ireland", "Gaming"],
-      category: "Esports",
-      year: "2024"
-    },
-    {
-      id: "shinto-gaming-club",
-      title: "Shinto Gaming Club",
-      description: "A new esports gaming club that is partaking in various esports tournaments.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/img_1907-AGB6kk44XzULb0rL.jpg",
-      tags: ["Esports", "Gaming Club", "Tournaments", "Competitive"],
-      category: "Esports",
-      year: "2024"
-    },
-    {
-      id: "hp-league",
-      title: "HP League",
-      description: "A new Esports league that was partaking in XDefiant and PUBG.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/ddssd-YlevxJlDrxTEV0bG.png",
-      tags: ["Esports", "League", "XDefiant", "PUBG"],
-      category: "Esports",
-      year: "2024"
-    },
-    {
-      id: "neverfps",
-      title: "NeverFPS",
-      description: "A variety streamer turned game developer.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/nevers-kick-banner-AGB6RE277PfQ45LM.jpg",
-      tags: ["Streaming", "Game Development", "Variety", "Content"],
-      category: "Content Creation",
-      year: "2024"
-    },
-    {
-      id: "thumbnails",
-      title: "Thumbnails",
-      description: "Thumbnails are used to engage and draw audiences to a particular video.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop,trim=0;129.31185944363105;0;16.866764275256223/YNqO7k0WyEUyB3w6/c3f4f288-9f7c-4ec9-89db-e3088a16a602_rw_1920-YrDle0221nILr5K9.jpg",
-      tags: ["Design", "Thumbnails", "Video", "Engagement"],
-      category: "Design",
-      year: "2024"
-    },
-    {
-      id: "3d-work",
-      title: "3D Work",
-      description: "This is a collection of our completed 3D Work.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=440,fit=crop,trim=267.3267326732673;0;324.3564356435644;0/YNqO7k0WyEUyB3w6/gif-AR0yxZWlxjHjRnnn.png",
-      tags: ["3D", "Modeling", "Design", "Visualization"],
-      category: "3D",
-      year: "2024"
-    },
-    {
-      id: "7-cubed-films",
-      title: "7 Cubed Films",
-      description: "A SFM animation artist that specializes in a Star Wars: The Clone Wars setting and has over 5+ Million Views",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=600,fit=crop/YNqO7k0WyEUyB3w6/77f1-AoPvMlwkLbFo9JGJ.png",
-      tags: ["Animation", "SFM", "Star Wars", "Film"],
-      category: "Animation",
-      year: "2024",
-      featured: true
-    },
-    {
-      id: "posters",
-      title: "Posters",
-      description: "Posters were made as an advertisement tool to help people engage in the esports communities and drive engagement.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=776,fit=crop/YNqO7k0WyEUyB3w6/c4a83127-4a3e-4f60-9ba8-8dba90f43791_rw_1200-AQEyOM9p1yF9GWwO.jpg",
-      tags: ["Design", "Posters", "Advertising", "Esports"],
-      category: "Design",
-      year: "2024"
-    },
-    {
-      id: "whysper",
-      title: "ULoveWhysper",
-      description: "A content creator and competitive player who steamed from Apex to Marvel Rivals!",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=709,h=384,fit=crop/YNqO7k0WyEUyB3w6/whysper-YbNqBQR7ykClLJ2q.jpg",
-      tags: ["Content Creation", "Streaming", "Gaming", "Competitive"],
-      category: "Content Creation",
-      year: "2025",
-      featured: true
-    },
-    {
-      id: "midas-networks",
-      title: "Midas Networks",
-      description: "A Multi-Game Hosting Network based in Garry's Mod, FiveM, Arma, Squad and more!",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=709,h=384,fit=crop/YNqO7k0WyEUyB3w6/midas-for-website-Yyv0nV0WMjCMk3pq.jpg",
-      tags: ["Gaming", "Hosting", "Network", "Multi-Game"],
-      category: "Gaming",
-      year: "2025"
-    }
-  ];
+  const filteredProjects = portfolios.filter(project => 
+    project.status === 'published' && (filter === "all" || project.category === filter)
+  );
 
-  const categories = ["All", "Studio", "Esports", "Gaming", "Content Creation", "Design", "3D", "Animation"];
+  const categories = ["all", ...Array.from(new Set(portfolios.map(p => p.category)))];
+  const categoryLabels: Record<string, string> = {
+    "all": "All Projects",
+    "web-development": "Web Development", 
+    "gaming-platform": "Gaming Platform",
+    "game-development": "Game Development",
+    "film-production": "Film Production",
+    "dashboard": "Dashboard",
+    "social-network": "Social Network"
+  };
 
-  const filteredProjects = activeCategory === "All" 
-    ? projects 
-    : projects.filter(project => project.category === activeCategory);
-
-  const featuredProjects = projects.filter(project => project.featured);
+  const featuredProjects = portfolios.filter(project => project.featured);
 
   return (
     <div className="min-h-screen bg-background">
@@ -160,7 +46,7 @@ const Portfolio = () => {
             <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-seagram-green rounded-full"></div>
-                <span>{projects.length} Total Projects</span>
+                <span>{portfolios.length} Total Projects</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-violet-purple rounded-full"></div>
@@ -181,18 +67,18 @@ const Portfolio = () => {
               {categories.map((category) => (
                 <Button
                   key={category}
-                  variant={activeCategory === category ? "default" : "outline"}
-                  onClick={() => setActiveCategory(category)}
+                  variant={filter === category ? "default" : "outline"}
+                  onClick={() => setFilter(category)}
                   className={`hover:scale-105 transition-all duration-300 ${
-                    activeCategory === category 
+                    filter === category 
                       ? "bg-seagram-green hover:bg-seagram-green/90 shadow-lg shadow-seagram-green/25" 
                       : "hover:border-seagram-green hover:text-seagram-green"
                   }`}
                 >
-                  {category}
-                  {category !== "All" && (
+                  {categoryLabels[category] || category}
+                  {category !== "all" && (
                     <Badge variant="secondary" className="ml-2 text-xs">
-                      {projects.filter(p => p.category === category).length}
+                      {portfolios.filter(p => p.category === category).length}
                     </Badge>
                   )}
                 </Button>
@@ -204,62 +90,85 @@ const Portfolio = () => {
         {/* Projects Grid */}
         <section className="py-8 px-4 sm:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredProjects.map((project, index) => (
-                <Card 
-                  key={index} 
-                  className="overflow-hidden hover:shadow-xl transition-all duration-500 group hover-lift animate-fade-in cursor-pointer"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                  onClick={() => navigate(`/portfolio/${project.id}`)}
-                >
-                  <div className="relative overflow-hidden">
-                    {project.featured && (
-                      <div className="absolute top-4 left-4 z-10">
-                        <Badge className="bg-violet-purple text-white">Featured</Badge>
+            {loading ? (
+              <div className="flex justify-center items-center py-20">
+                <Loader2 className="w-8 h-8 animate-spin text-seagram-green" />
+                <span className="ml-2 text-muted-foreground">Loading portfolio...</span>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredProjects.map((project, index) => (
+                  <Card 
+                    key={project.id}
+                    className="group overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 bg-card/50 backdrop-blur-sm"
+                    style={{
+                      animationDelay: `${index * 0.1}s`
+                    }}
+                  >
+                    <div className="relative overflow-hidden">
+                      <img
+                        src={project.images?.[0] || "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=600&fit=crop"}
+                        alt={project.title}
+                        className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="absolute bottom-4 left-4 right-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 opacity-0 group-hover:opacity-100">
+                        <div className="flex gap-2">
+                          {project.live_url && (
+                            <Button size="sm" variant="secondary" asChild>
+                              <a href={project.live_url} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="w-3 h-3 mr-1" />
+                                Live
+                              </a>
+                            </Button>
+                          )}
+                          <Button size="sm" variant="secondary" asChild>
+                            <Link to={`/portfolio/${project.slug}`}>
+                              View Details
+                            </Link>
+                          </Button>
+                        </div>
                       </div>
-                    )}
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-                      <Button 
-                        size="sm" 
-                        variant="secondary" 
-                        className="bg-white/90 hover:bg-white hover:scale-110 transition-all"
-                        onClick={() => navigate(`/portfolio/${project.id}`)}
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <CardTitle className="text-xl group-hover:text-seagram-green transition-colors">
-                        {project.title}
-                      </CardTitle>
-                      <Badge variant="outline" className="group-hover:border-seagram-green group-hover:text-seagram-green transition-colors">
-                        {project.category}
-                      </Badge>
-                    </div>
-                    <CardDescription className="text-sm leading-relaxed">
-                      {project.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {project.tags.map((tag, tagIndex) => (
-                        <Badge key={tagIndex} variant="secondary" className="text-xs hover:bg-seagram-green/10 transition-colors">
-                          {tag}
+                      {project.featured && (
+                        <Badge className="absolute top-4 right-4 bg-seagram-green hover:bg-seagram-green/90">
+                          Featured
                         </Badge>
-                      ))}
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge variant="outline">{categoryLabels[project.category] || project.category}</Badge>
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2 group-hover:text-seagram-green transition-colors duration-300">
+                        {project.title}
+                      </h3>
+                      <p className="text-muted-foreground mb-4 text-sm leading-relaxed">
+                        {project.description}
+                      </p>
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {project.technologies?.slice(0, 3).map((tech) => (
+                          <Badge key={tech} variant="secondary" className="text-xs">
+                            {tech}
+                          </Badge>
+                        ))}
+                        {project.technologies && project.technologies.length > 3 && (
+                          <Badge variant="secondary" className="text-xs">
+                            +{project.technologies.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {!loading && filteredProjects.length === 0 && (
+              <div className="text-center py-20">
+                <h3 className="text-2xl font-semibold mb-4">No projects found</h3>
+                <p className="text-muted-foreground">Try adjusting your filter or check back later for new projects.</p>
+              </div>
+            )}
           </div>
         </section>
 
@@ -268,7 +177,7 @@ const Portfolio = () => {
           <div className="max-w-4xl mx-auto">
             <div className="grid md:grid-cols-3 gap-8">
               <Card className="text-center p-6 hover-lift">
-                <div className="text-3xl font-bold text-seagram-green mb-2">{projects.length}+</div>
+                <div className="text-3xl font-bold text-seagram-green mb-2">{portfolios.length}+</div>
                 <div className="text-muted-foreground">Projects Completed</div>
               </Card>
               <Card className="text-center p-6 hover-lift">

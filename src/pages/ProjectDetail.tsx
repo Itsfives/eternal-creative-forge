@@ -1,209 +1,244 @@
-import { useParams, useNavigate } from "react-router-dom";
-import Navigation from "../components/Navigation";
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { ArrowLeft, ExternalLink, Github, Calendar, User, Star, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Calendar, Tag } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { usePortfolio } from "@/hooks/usePortfolio";
+import Navigation from "../components/Navigation";
+import type { Database } from "@/integrations/supabase/types";
+
+type Portfolio = Database['public']['Tables']['portfolios']['Row'];
 
 const ProjectDetail = () => {
-  const { projectId } = useParams();
-  const navigate = useNavigate();
+  const { slug } = useParams();
+  const { getPortfolioBySlug } = usePortfolio();
+  const [project, setProject] = useState<Portfolio | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // This would typically come from your database or API
-  const projectDetails = {
-    "eternals-studio": {
-      title: "Eternals Studio",
-      description: "A GFX, VFX, Coding, Music Production Studio!",
-      fullDescription: "Eternals Studio is a comprehensive creative studio specializing in graphics design, visual effects, coding, and music production. We provide end-to-end creative solutions for gaming organizations, content creators, and businesses looking to establish a strong visual identity.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1200,h=600,fit=crop/YNqO7k0WyEUyB3w6/img_1795-YNqykO6O7yIrvvGr.jpg",
-      tags: ["GFX", "VFX", "Coding", "Music Production"],
-      category: "Studio",
-      year: "2024",
-      client: "Internal Project",
-      gallery: [
-        "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/img_1795-YNqykO6O7yIrvvGr.jpg"
-      ]
-    },
-    "eternals-gg": {
-      title: "Eternals GGs",
-      description: "A Content Creation and Esports Organization based in a wide variety of competitive games.",
-      fullDescription: "Eternals GGs serves as our parent organization, focusing on content creation and esports across multiple competitive gaming platforms. We've helped establish their brand identity, create promotional materials, and develop their digital presence across various gaming communities.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1200,h=600,fit=crop/YNqO7k0WyEUyB3w6/e795ed40-7f78-4cc9-b0eb-11931e05891f_rw_1920-mp8vZO4gvOc1Vazm.jpg",
-      tags: ["Esports", "Content Creation", "Organization", "Gaming"],
-      category: "Esports",
-      year: "2024",
-      client: "Eternals GGs",
-      gallery: [
-        "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/e795ed40-7f78-4cc9-b0eb-11931e05891f_rw_1920-mp8vZO4gvOc1Vazm.jpg"
-      ]
-    },
-    "deceptive-grounds": {
-      title: "Deceptive Grounds",
-      description: "A multi-game based community hosting servers on games such as Garry's Mod and Arma 3.",
-      fullDescription: "Deceptive Grounds is a thriving gaming community that we've helped establish through comprehensive branding and visual identity work. Our team created their logo, server graphics, promotional materials, and community assets that have helped them build a strong presence in the gaming world.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1200,h=600,fit=crop/YNqO7k0WyEUyB3w6/img_1853-AMqbkp9joNSR2Bl2.jpg",
-      tags: ["Gaming", "Community", "Servers", "Multi-game"],
-      category: "Gaming",
-      year: "2024",
-      client: "Deceptive Grounds Community",
-      gallery: [
-        "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=384,fit=crop/YNqO7k0WyEUyB3w6/img_1853-AMqbkp9joNSR2Bl2.jpg"
-      ]
-    },
-    "7-cubed-films": {
-      title: "7 Cubed Films",
-      description: "A SFM animation artist specializing in Star Wars: The Clone Wars setting with over 5+ Million Views",
-      fullDescription: "7 Cubed Films is a renowned SFM animation channel that has achieved incredible success with over 5 million views. We've provided comprehensive branding support, including logo design, channel graphics, and promotional materials that have helped establish their strong presence in the Star Wars animation community.",
-      image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1200,h=600,fit=crop/YNqO7k0WyEUyB3w6/77f1-AoPvMlwkLbFo9JGJ.png",
-      tags: ["Animation", "SFM", "Star Wars", "Film"],
-      category: "Animation",
-      year: "2024",
-      client: "7 Cubed Films",
-      gallery: [
-        "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=606,h=600,fit=crop/YNqO7k0WyEUyB3w6/77f1-AoPvMlwkLbFo9JGJ.png"
-      ]
-    }
-  };
+  useEffect(() => {
+    const fetchProject = async () => {
+      if (!slug) return;
+      
+      setLoading(true);
+      const data = await getPortfolioBySlug(slug);
+      setProject(data);
+      setLoading(false);
+    };
 
-  const project = projectDetails[projectId as keyof typeof projectDetails];
+    fetchProject();
+  }, [slug, getPortfolioBySlug]);
 
-  if (!project) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="pt-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center py-16">
-            <h1 className="text-4xl font-bold mb-4">Project Not Found</h1>
-            <p className="text-muted-foreground mb-8">The project you're looking for doesn't exist.</p>
-            <Button onClick={() => navigate("/portfolio")} className="bg-seagram-green hover:bg-seagram-green/90">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Portfolio
-            </Button>
+        <div className="pt-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-seagram-green" />
+              <span className="ml-2 text-muted-foreground">Loading project...</span>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
+  if (!project) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="pt-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold">Project not found</h1>
+              <p className="text-muted-foreground mt-2">The project you're looking for doesn't exist.</p>
+              <Link to="/portfolio">
+                <Button className="mt-4">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Portfolio
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const categoryLabels: Record<string, string> = {
+    "web-development": "Web Development", 
+    "gaming-platform": "Gaming Platform",
+    "game-development": "Game Development",
+    "film-production": "Film Production",
+    "dashboard": "Dashboard",
+    "social-network": "Social Network"
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       
       <div className="pt-20">
-        {/* Hero Section */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-            <Button 
-              onClick={() => navigate("/portfolio")} 
-              variant="outline" 
-              className="mb-8 hover:border-seagram-green hover:text-seagram-green"
-            >
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Back Button */}
+          <Link to="/portfolio">
+            <Button variant="ghost" className="mb-8">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Portfolio
             </Button>
-            
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div>
-                <div className="flex items-center gap-4 mb-4">
-                  <Badge variant="outline" className="border-seagram-green text-seagram-green">
-                    {project.category}
-                  </Badge>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Calendar className="w-4 h-4 mr-1" />
-                    {project.year}
-                  </div>
+          </Link>
+
+          {/* Project Header */}
+          <div className="mb-12">
+            <div className="flex items-center gap-4 mb-6">
+              <Badge variant="outline" className="border-seagram-green text-seagram-green">
+                {categoryLabels[project.category] || project.category}
+              </Badge>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" />
+                  {project.completed_date ? new Date(project.completed_date).toLocaleDateString() : 'Ongoing'}
                 </div>
-                
-                <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-seagram-green to-violet-purple bg-clip-text text-transparent">
-                  {project.title}
-                </h1>
-                
-                <p className="text-xl text-muted-foreground mb-6 leading-relaxed">
-                  {project.description}
-                </p>
-                
-                <div className="flex flex-wrap gap-2 mb-8">
-                  {project.tags.map((tag, index) => (
-                    <Badge key={index} variant="secondary" className="hover:bg-seagram-green/10 transition-colors">
-                      <Tag className="w-3 h-3 mr-1" />
-                      {tag}
+                {project.client && (
+                  <div className="flex items-center gap-1">
+                    <User className="w-4 h-4" />
+                    {project.client}
+                  </div>
+                )}
+                {project.featured && (
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 text-yellow-500" />
+                    Featured
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-seagram-green to-violet-purple bg-clip-text text-transparent">
+              {project.title}
+            </h1>
+
+            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+              {project.description}
+            </p>
+
+            <div className="flex gap-3">
+              {project.live_url && (
+                <Button asChild>
+                  <a href={project.live_url} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View Live Site
+                  </a>
+                </Button>
+              )}
+              {project.github_url && (
+                <Button variant="outline" asChild>
+                  <a href={project.github_url} target="_blank" rel="noopener noreferrer">
+                    <Github className="w-4 h-4 mr-2" />
+                    View Code
+                  </a>
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Project Gallery */}
+          {project.images && project.images.length > 0 && (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+              {project.images.map((image, index) => (
+                <div key={index} className="relative group">
+                  <img
+                    src={image}
+                    alt={`${project.title} screenshot ${index + 1}`}
+                    className="w-full h-48 object-cover rounded-lg transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Technologies Used */}
+          {project.technologies && project.technologies.length > 0 && (
+            <Card className="mb-12">
+              <CardHeader>
+                <CardTitle>Technologies Used</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {project.technologies?.map((tech) => (
+                    <Badge key={tech} variant="outline">
+                      {tech}
                     </Badge>
                   ))}
                 </div>
-                
-                <Card className="p-6 bg-muted/30">
-                  <CardContent className="p-0">
-                    <h3 className="font-semibold mb-2 text-foreground">Client</h3>
-                    <p className="text-muted-foreground">{project.client}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Project Details */}
+          {(project.challenges || project.solutions) && (
+            <div className="grid md:grid-cols-2 gap-8 mb-12">
+              {project.challenges && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Challenges</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {project.challenges}
+                    </p>
                   </CardContent>
                 </Card>
-              </div>
-              
-              <div className="relative">
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  className="w-full h-auto rounded-lg shadow-xl hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg"></div>
-              </div>
+              )}
+
+              {project.solutions && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Solutions</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {project.solutions}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
             </div>
-          </div>
-        </section>
-        
-        {/* Project Details */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/30">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold mb-8 text-center">Project Overview</h2>
-            <div className="prose prose-lg mx-auto">
-              <p className="text-muted-foreground leading-relaxed">
-                {project.fullDescription}
-              </p>
-            </div>
-          </div>
-        </section>
-        
-        {/* Gallery */}
-        {project.gallery && project.gallery.length > 0 && (
-          <section className="py-16 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-6xl mx-auto">
-              <h2 className="text-3xl font-bold mb-8 text-center">Project Gallery</h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {project.gallery.map((image, index) => (
-                  <Card key={index} className="overflow-hidden hover:shadow-xl transition-all duration-300 hover-lift">
-                    <img
-                      src={image}
-                      alt={`${project.title} - Image ${index + 1}`}
-                      className="w-full h-64 object-cover hover:scale-110 transition-transform duration-500"
-                    />
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-        
-        {/* CTA Section */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/30">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4">Interested in Similar Work?</h2>
-            <p className="text-muted-foreground mb-8">
-              Let's discuss how we can help bring your vision to life with our expertise and passion for excellence.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-seagram-green hover:bg-seagram-green/90 text-white px-8 py-3 hover:scale-105 transition-all duration-300">
-                Start Your Project
-              </Button>
-              <Button 
-                variant="outline" 
-                className="px-8 py-3 hover:border-seagram-green hover:text-seagram-green hover:scale-105 transition-all duration-300"
-                onClick={() => navigate("/portfolio")}
-              >
-                View More Projects
-              </Button>
-            </div>
-          </div>
-        </section>
+          )}
+
+          {/* Results */}
+          {project.results && (
+            <Card className="mb-12">
+              <CardHeader>
+                <CardTitle>Results & Impact</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground leading-relaxed">
+                  {project.results}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Testimonial */}
+          {project.testimonial && (
+            <Card className="bg-seagram-green/5 border-seagram-green/20">
+              <CardContent className="pt-6">
+                <blockquote className="text-lg italic mb-4">
+                  "{project.testimonial}"
+                </blockquote>
+                {project.testimonial_author && (
+                  <cite className="text-muted-foreground">
+                    — {project.testimonial_author}
+                  </cite>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   );
