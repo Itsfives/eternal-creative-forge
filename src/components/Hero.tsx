@@ -55,11 +55,11 @@ const Hero = () => {
               We are dedicated to enhancing the success of individuals and organizations across various fields, including business and esports, through our exceptional
               <span className="text-seagram-green font-semibold hover:scale-105 inline-block transition-transform cursor-default">&nbsp;graphical expertise</span>. 
               We understand that compelling visuals are essential in capturing attention and communicating ideas effectively. Whether it's creating stunning 
-              <span className="text-violet-purple font-semibold hover:scale-105 inline-block transition-transform cursor-default"> logos</span>, 
+              <span className="text-violet-purple font-semibold hover:scale-105 inline-block transition-transform cursor-default">&nbsp;logos</span>, 
               immersive 
-              <span className="text-seagram-green font-semibold hover:scale-105 inline-block transition-transform cursor-default"> esports graphics</span>, 
+              <span className="text-seagram-green font-semibold hover:scale-105 inline-block transition-transform cursor-default">&nbsp;esports graphics</span>, 
               or engaging 
-              <span className="text-violet-purple font-semibold hover:scale-105 inline-block transition-transform cursor-default"> promotional materials</span>, 
+              <span className="text-violet-purple font-semibold hover:scale-105 inline-block transition-transform cursor-default">&nbsp;promotional materials</span>, 
               our team is committed to delivering high-quality solutions that elevate brands and drive growth.
             </p>
           </div>
