@@ -116,7 +116,7 @@ const Hero = () => {
             </div>
             <div className="text-center group hover:scale-105 transition-transform duration-300">
               <div className="text-3xl md:text-4xl font-bold text-violet-purple">
-                <span className="text-2xl flex items-baseline">24/<AnimatedCounter end={7} /></span>
+                <span className=className="text-2xl inline-flex items-center">24/<AnimatedCounter end={7} /></span>
               </div>
               <div className="text-sm text-muted-foreground group-hover:text-violet-purple transition-colors">Support Available</div>
             </div>
