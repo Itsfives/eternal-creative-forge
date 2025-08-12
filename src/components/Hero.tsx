@@ -52,8 +52,8 @@ const Hero = () => {
               Where Ideas Become Reality
             </p>
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-              We are dedicated to enhancing the success of individuals and organizations across various fields, including business and esports, through our exceptional  
-              <span className="text-seagram-green font-semibold hover:scale-105 inline-block transition-transform cursor-default"> graphical expertise</span>. 
+              We are dedicated to enhancing the success of individuals and organizations across various fields, including business and esports, through our exceptional
+              <span className="text-seagram-green font-semibold hover:scale-105 inline-block transition-transform cursor-default">&nbsp;graphical expertise</span>. 
               We understand that compelling visuals are essential in capturing attention and communicating ideas effectively. Whether it's creating stunning 
               <span className="text-violet-purple font-semibold hover:scale-105 inline-block transition-transform cursor-default"> logos</span>, 
               immersive 
