@@ -104,7 +104,7 @@ export const useStore = () => {
     }
   };
 
-  const updatePurchaseStatus = async (purchaseId: string, status: string, stripeSessionId?: string) => {
+  const updatePurchaseStatus = async (purchaseId: string, status: 'pending' | 'completed' | 'failed' | 'refunded' | 'expired', stripeSessionId?: string) => {
     try {
       const updates: any = { status };
       if (stripeSessionId) {
