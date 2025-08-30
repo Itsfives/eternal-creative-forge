@@ -1,4 +1,5 @@
-import { useState, createContext, useContext } from "react";
+import { useState, createContext, useContext, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -61,28 +62,51 @@ const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode;
 };
 
 const AppWithAnalytics = () => {
-  // Add console log to verify app is loading
   console.log("App is loading successfully");
   
-  const [user, setUser] = useState<User | null>({
-    id: "admin-1",
-    email: "admin@example.com",
-    roles: ["admin", "cms_editor"] // Mock admin user for testing
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ? {
+          id: session.user.id,
+          email: session.user.email || '',
+          roles: session.user.email?.includes("admin") ? ["admin", "cms_editor"] : ["client"]
+        } : null);
+        setLoading(false);
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ? {
+        id: session.user.id,
+        email: session.user.email || '',
+        roles: session.user.email?.includes("admin") ? ["admin", "cms_editor"] : ["client"]
+      } : null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const authValue: AuthContextType = {
     user,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user && !!session,
     hasRole: (role: string) => user?.roles.includes(role) || false,
-    login: (email: string, password: string) => {
-      // Mock login - in real app, this would authenticate with Supabase
-      setUser({
-        id: "user-1",
-        email,
-        roles: email.includes("admin") ? ["admin", "cms_editor"] : ["client"]
-      });
+    login: async (email: string, password: string) => {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
     },
-    logout: () => setUser(null)
+    logout: async () => {
+      await supabase.auth.signOut();
+    }
   };
 
   useAnalytics(); // Initialize analytics tracking

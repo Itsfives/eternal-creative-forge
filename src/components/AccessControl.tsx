@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AccessControlProps {
   children: ReactNode;
@@ -16,12 +16,33 @@ const AccessControl = ({
   fallbackPath = '/auth' 
 }: AccessControlProps) => {
   const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   
-  // Mock user data - replace with actual auth when implemented
-  const user = null; // Will be replaced with actual auth
-  const userRoles: string[] = []; // Will be replaced with actual roles
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      setLoading(false);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user || null);
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const userRoles = user?.email?.includes("admin") ? ["admin", "cms_editor"] : ["client"];
 
   useEffect(() => {
+    if (loading) return;
+
     if (requireAuth && !user) {
       navigate(fallbackPath);
       return;
@@ -31,9 +52,9 @@ const AccessControl = ({
       navigate('/');
       return;
     }
-  }, [user, userRoles, requiredRole, requireAuth, navigate, fallbackPath]);
+  }, [user, userRoles, requiredRole, requireAuth, navigate, fallbackPath, loading]);
 
-  // Show loading or redirect if access denied
+  if (loading) return <div>Loading...</div>;
   if (requireAuth && !user) return null;
   if (requiredRole && !userRoles.includes(requiredRole)) return null;
 
