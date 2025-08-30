@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Bold, Italic, Link, List, Image, Eye } from "lucide-react";
+import DOMPurify from 'dompurify';
 
 interface RichTextEditorProps {
   content: string;
@@ -104,13 +105,21 @@ const RichTextEditor = ({ content, onChange, placeholder = "Start writing..." }:
         <div className="p-4 min-h-[200px] prose prose-sm max-w-none">
           {content ? (
             <div dangerouslySetInnerHTML={{ 
-              __html: content
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary hover:underline">$1</a>')
-                .replace(/^- (.*$)/gm, '<li>$1</li>')
-                .replace(/(<li>.*<\/li>)/s, '<ul class="list-disc pl-6">$1</ul>')
-                .replace(/\n/g, '<br>')
+              __html: DOMPurify.sanitize(
+                content
+                  .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                  .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                  .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary hover:underline" rel="noopener noreferrer">$1</a>')
+                  .replace(/^- (.*$)/gm, '<li>$1</li>')
+                  .replace(/(<li>.*<\/li>)/s, '<ul class="list-disc pl-6">$1</ul>')
+                  .replace(/\n/g, '<br>'),
+                {
+                  ALLOWED_TAGS: ['strong', 'em', 'a', 'ul', 'li', 'br', 'p'],
+                  ALLOWED_ATTR: ['href', 'class', 'rel'],
+                  FORBID_ATTR: ['style', 'onclick', 'onload', 'onerror'],
+                  FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form', 'input']
+                }
+              )
             }} />
           ) : (
             <p className="text-muted-foreground">Nothing to preview yet...</p>

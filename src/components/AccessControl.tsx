@@ -1,10 +1,10 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuth, type AppRole } from '@/hooks/useAuth';
 
 interface AccessControlProps {
   children: ReactNode;
-  requiredRole?: 'admin' | 'cms_editor' | 'client';
+  requiredRole?: AppRole | AppRole[];
   requireAuth?: boolean;
   fallbackPath?: string;
 }
@@ -16,30 +16,8 @@ const AccessControl = ({
   fallbackPath = '/auth' 
 }: AccessControlProps) => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, roles, loading, hasRole, hasAnyRole } = useAuth();
   
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-      setLoading(false);
-    };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user || null);
-        setLoading(false);
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const userRoles = user?.email?.includes("admin") ? ["admin", "cms_editor"] : ["client"];
-
   useEffect(() => {
     if (loading) return;
 
@@ -48,15 +26,28 @@ const AccessControl = ({
       return;
     }
 
-    if (requiredRole && !userRoles.includes(requiredRole)) {
-      navigate('/');
-      return;
+    if (requiredRole) {
+      const hasRequiredRole = Array.isArray(requiredRole) 
+        ? hasAnyRole(requiredRole)
+        : hasRole(requiredRole);
+        
+      if (!hasRequiredRole) {
+        navigate('/');
+        return;
+      }
     }
-  }, [user, userRoles, requiredRole, requireAuth, navigate, fallbackPath, loading]);
+  }, [user, roles, requiredRole, requireAuth, navigate, fallbackPath, loading, hasRole, hasAnyRole]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="flex items-center justify-center p-4">Loading...</div>;
   if (requireAuth && !user) return null;
-  if (requiredRole && !userRoles.includes(requiredRole)) return null;
+  
+  if (requiredRole) {
+    const hasRequiredRole = Array.isArray(requiredRole) 
+      ? hasAnyRole(requiredRole)
+      : hasRole(requiredRole);
+      
+    if (!hasRequiredRole) return null;
+  }
 
   return <>{children}</>;
 };
