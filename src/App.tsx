@@ -32,8 +32,8 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   hasRole: (role: string) => boolean;
-  login: (email: string, password: string) => void;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
