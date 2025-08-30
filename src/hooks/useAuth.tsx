@@ -1,21 +1,32 @@
-import { useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
+// Define the available app roles
 export type AppRole = 'admin' | 'cms_editor' | 'client';
 
-interface AuthState {
+// Auth context type
+interface AuthContextType {
   user: User | null;
   roles: AppRole[];
   loading: boolean;
+  isAuthenticated: boolean;
+  hasRole: (role: AppRole | string) => boolean;
+  hasAnyRole: (roles: AppRole[]) => boolean;
+  isAdmin: () => boolean;
+  isCmsEditor: () => boolean;
+  refreshRoles: () => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
-export const useAuth = () => {
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    roles: [],
-    loading: true
-  });
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Custom hook to manage auth state
+const useAuthState = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [roles, setRoles] = useState<AppRole[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchUserRoles = async (userId: string): Promise<AppRole[]> => {
     try {
@@ -35,66 +46,84 @@ export const useAuth = () => {
     }
   };
 
-  const hasRole = (role: AppRole): boolean => {
-    return authState.roles.includes(role);
-  };
-
-  const hasAnyRole = (roles: AppRole[]): boolean => {
-    return roles.some(role => authState.roles.includes(role));
-  };
-
-  const isAdmin = (): boolean => {
-    return hasRole('admin');
-  };
-
-  const isCmsEditor = (): boolean => {
-    return hasRole('cms_editor');
+  const refreshRoles = async () => {
+    if (user) {
+      const userRoles = await fetchUserRoles(user.id);
+      setRoles(userRoles);
+    }
   };
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        const user = session?.user ?? null;
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
         
-        if (user) {
+        if (currentUser) {
           // Fetch user roles when user is authenticated
-          const roles = await fetchUserRoles(user.id);
-          setAuthState({ user, roles, loading: false });
+          const userRoles = await fetchUserRoles(currentUser.id);
+          setRoles(userRoles);
         } else {
-          setAuthState({ user: null, roles: [], loading: false });
+          setRoles([]);
         }
+        setLoading(false);
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      const user = session?.user ?? null;
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
       
-      if (user) {
-        const roles = await fetchUserRoles(user.id);
-        setAuthState({ user, roles, loading: false });
+      if (currentUser) {
+        const userRoles = await fetchUserRoles(currentUser.id);
+        setRoles(userRoles);
       } else {
-        setAuthState({ user: null, roles: [], loading: false });
+        setRoles([]);
       }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   return {
-    user: authState.user,
-    roles: authState.roles,
-    loading: authState.loading,
-    hasRole,
-    hasAnyRole,
-    isAdmin,
-    isCmsEditor,
-    refreshRoles: async () => {
-      if (authState.user) {
-        const roles = await fetchUserRoles(authState.user.id);
-        setAuthState(prev => ({ ...prev, roles }));
-      }
-    }
+    user,
+    roles,
+    loading,
+    isAuthenticated: !!user,
+    hasRole: (role: AppRole | string) => roles.includes(role as AppRole),
+    hasAnyRole: (targetRoles: AppRole[]) => targetRoles.some(role => roles.includes(role)),
+    isAdmin: () => roles.includes('admin'),
+    isCmsEditor: () => roles.includes('cms_editor'),
+    refreshRoles,
+    login: async (email: string, password: string) => {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    },
+    logout: async () => {
+      await supabase.auth.signOut();
+    },
   };
+};
+
+// Auth Provider component
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const authValue = useAuthState();
+  
+  return (
+    <AuthContext.Provider value={authValue}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+// Hook to use auth context
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };

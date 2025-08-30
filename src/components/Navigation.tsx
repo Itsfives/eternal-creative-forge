@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, User, Shield, Settings, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "@/App";
+import { useAuth } from "@/hooks/useAuth";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
