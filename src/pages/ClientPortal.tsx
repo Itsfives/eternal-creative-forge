@@ -5,10 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, Clock, CheckCircle, Download, MessageCircle, CreditCard, Calendar, AlertCircle, HelpCircle, Home, DollarSign } from "lucide-react";
+import { FileText, Clock, CheckCircle, Download, MessageCircle, CreditCard, Calendar, AlertCircle, HelpCircle, Home, DollarSign, ShoppingBag } from "lucide-react";
+import { useStore } from "@/hooks/useStore";
+import { DownloadCard } from "@/components/DownloadCard";
 import { Link } from "react-router-dom";
 
 const ClientPortal = () => {
+  const { purchases, loading: storeLoading, incrementDownloadCount } = useStore();
   const [activeProjects] = useState([
     {
       id: 1,
@@ -97,16 +100,17 @@ const ClientPortal = () => {
         </div>
 
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
             <TabsTrigger value="files">Files</TabsTrigger>
+            <TabsTrigger value="downloads">Downloads</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
             <TabsTrigger value="billing">Billing</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
               <Card className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center">
@@ -143,6 +147,19 @@ const ClientPortal = () => {
                 <CardContent>
                   <div className="text-3xl font-bold">{messages.filter(m => m.unread).length}</div>
                   <p className="text-sm text-muted-foreground">Unread messages</p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center">
+                    <ShoppingBag className="w-5 h-5 mr-2 text-violet-purple" />
+                    Downloads
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{purchases.length}</div>
+                  <p className="text-sm text-muted-foreground">Available downloads</p>
                 </CardContent>
               </Card>
 
@@ -314,6 +331,79 @@ const ClientPortal = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="downloads" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-semibold">Your Downloads</h2>
+                <p className="text-muted-foreground">Access your purchased digital products</p>
+              </div>
+              <Link to="/store">
+                <Button className="bg-seagram-green hover:bg-seagram-green/90">
+                  <ShoppingBag className="w-4 h-4 mr-2" />
+                  Visit Store
+                </Button>
+              </Link>
+            </div>
+
+            {storeLoading ? (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Card key={i} className="animate-pulse">
+                    <CardHeader>
+                      <div className="h-6 bg-muted rounded w-3/4 mb-2" />
+                      <div className="h-4 bg-muted rounded w-1/2" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="h-2 bg-muted rounded" />
+                        <div className="h-4 bg-muted rounded w-2/3" />
+                        <div className="h-9 bg-muted rounded" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : purchases.length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <ShoppingBag className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No downloads yet</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Visit our store to purchase digital products and templates
+                  </p>
+                  <Link to="/store">
+                    <Button className="bg-seagram-green hover:bg-seagram-green/90">
+                      <ShoppingBag className="w-4 h-4 mr-2" />
+                      Browse Store
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {purchases.map((purchase) => (
+                  <DownloadCard
+                    key={purchase.id}
+                    purchase={purchase}
+                    onDownload={async (purchaseData) => {
+                      try {
+                        await incrementDownloadCount(purchaseData.id);
+                        // In a real implementation, this would trigger the actual file download
+                        // For demo purposes, we'll just show a success message
+                        const link = document.createElement('a');
+                        link.href = purchaseData.store_products.file_url || '#';
+                        link.download = purchaseData.store_products.file_name || 'download';
+                        link.click();
+                      } catch (error) {
+                        console.error('Download failed:', error);
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="messages" className="space-y-6">

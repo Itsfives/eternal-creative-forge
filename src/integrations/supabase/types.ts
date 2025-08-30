@@ -194,6 +194,104 @@ export type Database = {
         }
         Relationships: []
       }
+      store_products: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          features: string[] | null
+          file_name: string | null
+          file_size: number | null
+          file_url: string | null
+          id: string
+          name: string
+          preview_image_url: string | null
+          price: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          features?: string[] | null
+          file_name?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          name: string
+          preview_image_url?: string | null
+          price: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          features?: string[] | null
+          file_name?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          name?: string
+          preview_image_url?: string | null
+          price?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      store_purchases: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          download_count: number | null
+          download_limit: number | null
+          expires_at: string | null
+          id: string
+          product_id: string
+          status: string
+          stripe_session_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_paid: number
+          created_at?: string
+          download_count?: number | null
+          download_limit?: number | null
+          expires_at?: string | null
+          id?: string
+          product_id: string
+          status?: string
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          download_count?: number | null
+          download_limit?: number | null
+          expires_at?: string | null
+          id?: string
+          product_id?: string
+          status?: string
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_purchases_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "store_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       public_profiles: {

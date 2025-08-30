@@ -11,6 +11,7 @@ import Portfolio from "./pages/Portfolio";
 import ProjectDetail from "./pages/ProjectDetail";
 import Contact from "./pages/Contact";
 import ClientPortal from "./pages/ClientPortal";
+import Store from "./pages/Store";
 import CMS from "./pages/CMS";
 import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
@@ -95,6 +96,7 @@ const AppWithAnalytics = () => {
         <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/portfolio/:projectId" element={<ProjectDetail />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/store" element={<Store />} />
         <Route path="/admin" element={
           <ProtectedRoute requiredRole="admin">
             <Admin />
