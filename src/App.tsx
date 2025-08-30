@@ -21,25 +21,25 @@ import LogoParticles from "./components/LogoParticles";
 
 const queryClient = new QueryClient();
 
-// Protected Route Component
-const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode; requiredRole?: string }) => {
-  const { isAuthenticated, hasRole } = useAuth();
-  
-  if (!isAuthenticated) {
-    return <Auth />;
-  }
-  
-  if (requiredRole && !hasRole(requiredRole)) {
-    return <NotFound />;
-  }
-  
-  return <>{children}</>;
-};
-
 const AppWithAnalytics = () => {
   console.log("App is loading successfully");
   
   useAnalytics(); // Initialize analytics tracking
+  
+  // Protected Route Component
+  const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode; requiredRole?: string }) => {
+    const { isAuthenticated, hasRole } = useAuth();
+    
+    if (!isAuthenticated) {
+      return <Auth />;
+    }
+    
+    if (requiredRole && !hasRole(requiredRole)) {
+      return <NotFound />;
+    }
+    
+    return <>{children}</>;
+  };
   
   return (
     <>
