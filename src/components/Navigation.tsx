@@ -140,7 +140,15 @@ const Navigation = () => {
           <div className="hidden md:block">
             {isAuthenticated ? (
               <Button 
-                onClick={logout}
+                onClick={async () => {
+                  console.log('Sign out button clicked');
+                  try {
+                    await logout();
+                    console.log('Logout completed successfully');
+                  } catch (error) {
+                    console.error('Logout failed in Navigation:', error);
+                  }
+                }}
                 variant="outline"
                 className="hover:scale-105 transition-all duration-300"
               >
@@ -221,9 +229,16 @@ const Navigation = () => {
               
               {isAuthenticated ? (
                 <Button 
-                  onClick={() => {
-                    logout();
-                    setIsMenuOpen(false);
+                  onClick={async () => {
+                    console.log('Mobile sign out button clicked');
+                    try {
+                      await logout();
+                      setIsMenuOpen(false);
+                      console.log('Mobile logout completed successfully');
+                    } catch (error) {
+                      console.error('Mobile logout failed:', error);
+                      setIsMenuOpen(false);
+                    }
                   }}
                   variant="outline"
                   className="w-full mt-4 hover:scale-105 transition-all duration-300"

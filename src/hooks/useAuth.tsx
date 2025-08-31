@@ -103,7 +103,18 @@ const useAuthState = () => {
       if (error) throw error;
     },
     logout: async () => {
-      await supabase.auth.signOut();
+      console.log('Logout function called');
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          console.error('Logout error:', error);
+          throw error;
+        }
+        console.log('Logout successful');
+      } catch (error) {
+        console.error('Failed to logout:', error);
+        throw error;
+      }
     },
   };
 };
