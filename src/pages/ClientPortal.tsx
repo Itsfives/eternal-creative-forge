@@ -9,9 +9,11 @@ import { FileText, Clock, CheckCircle, Download, MessageCircle, CreditCard, Cale
 import { useStore } from "@/hooks/useStore";
 import { DownloadCard } from "@/components/DownloadCard";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const ClientPortal = () => {
   const { purchases, loading: storeLoading, incrementDownloadCount } = useStore();
+  const { user } = useAuth();
   const [activeProjects] = useState([
     {
       id: 1,
@@ -62,7 +64,7 @@ const ClientPortal = () => {
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-seagram-green to-violet-purple bg-clip-text text-transparent">
-                Welcome Back, John!
+                Welcome Back, {user?.email || 'Guest'}!
               </h1>
               <p className="text-muted-foreground mt-2">
                 Track your projects, access files, and stay connected with our team
