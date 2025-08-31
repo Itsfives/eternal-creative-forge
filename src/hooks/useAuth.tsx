@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { User } from '@supabase/supabase-js';
+import type { User, Session } from '@supabase/supabase-js';
 
 // Define the available app roles
 export type AppRole = 'admin' | 'cms_editor' | 'client';
@@ -8,6 +8,7 @@ export type AppRole = 'admin' | 'cms_editor' | 'client';
 // Auth context type
 interface AuthContextType {
   user: User | null;
+  session: Session | null;
   roles: AppRole[];
   loading: boolean;
   isAuthenticated: boolean;
@@ -25,6 +26,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Custom hook to manage auth state
 const useAuthState = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -54,35 +56,46 @@ const useAuthState = () => {
   };
 
   useEffect(() => {
-    // Set up auth state listener
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        const currentUser = session?.user ?? null;
-        setUser(currentUser);
+      (event, currentSession) => {
+        console.log('Auth state change:', event, currentSession?.user?.email);
         
-        if (currentUser) {
-          // Fetch user roles when user is authenticated
-          const userRoles = await fetchUserRoles(currentUser.id);
-          setRoles(userRoles);
+        // SYNCHRONOUS state updates only
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+        setLoading(false);
+        
+        // Defer role fetching to prevent blocking the auth state change
+        if (currentSession?.user) {
+          setTimeout(() => {
+            fetchUserRoles(currentSession.user.id).then(userRoles => {
+              setRoles(userRoles);
+            });
+          }, 0);
         } else {
           setRoles([]);
         }
-        setLoading(false);
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
+      console.log('Initial session check:', existingSession?.user?.email);
       
-      if (currentUser) {
-        const userRoles = await fetchUserRoles(currentUser.id);
-        setRoles(userRoles);
+      setSession(existingSession);
+      setUser(existingSession?.user ?? null);
+      setLoading(false);
+      
+      if (existingSession?.user) {
+        setTimeout(() => {
+          fetchUserRoles(existingSession.user.id).then(userRoles => {
+            setRoles(userRoles);
+          });
+        }, 0);
       } else {
         setRoles([]);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -90,29 +103,45 @@ const useAuthState = () => {
 
   return {
     user,
+    session,
     roles,
     loading,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user && !!session,
     hasRole: (role: AppRole | string) => roles.includes(role as AppRole),
     hasAnyRole: (targetRoles: AppRole[]) => targetRoles.some(role => roles.includes(role)),
     isAdmin: () => roles.includes('admin'),
     isCmsEditor: () => roles.includes('cms_editor'),
     refreshRoles,
     login: async (email: string, password: string) => {
+      console.log('Login attempt for:', email);
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      if (error) {
+        console.error('Login error:', error);
+        throw error;
+      }
+      console.log('Login successful');
     },
     logout: async () => {
-      console.log('Logout function called');
+      console.log('Logout function called - starting logout process');
       try {
+        // Clear local state immediately
+        setUser(null);
+        setSession(null);
+        setRoles([]);
+        
+        // Then call Supabase signOut
         const { error } = await supabase.auth.signOut();
         if (error) {
           console.error('Logout error:', error);
           throw error;
         }
-        console.log('Logout successful');
+        console.log('Logout successful - user signed out');
       } catch (error) {
         console.error('Failed to logout:', error);
+        // Even if Supabase call fails, ensure local state is cleared
+        setUser(null);
+        setSession(null);
+        setRoles([]);
         throw error;
       }
     },
