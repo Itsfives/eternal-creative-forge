@@ -140,12 +140,17 @@ const Navigation = () => {
           <div className="hidden md:block">
             {isAuthenticated ? (
               <Button 
-                onClick={async () => {
+                onClick={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  alert('Sign out button clicked!');
                   console.log('Sign out button clicked');
                   try {
                     await logout();
+                    alert('Logout completed successfully');
                     console.log('Logout completed successfully');
                   } catch (error) {
+                    alert('Logout failed: ' + error);
                     console.error('Logout failed in Navigation:', error);
                   }
                 }}
@@ -229,13 +234,18 @@ const Navigation = () => {
               
               {isAuthenticated ? (
                 <Button 
-                  onClick={async () => {
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    alert('Mobile sign out button clicked!');
                     console.log('Mobile sign out button clicked');
                     try {
                       await logout();
                       setIsMenuOpen(false);
+                      alert('Mobile logout completed successfully');
                       console.log('Mobile logout completed successfully');
                     } catch (error) {
+                      alert('Mobile logout failed: ' + error);
                       console.error('Mobile logout failed:', error);
                       setIsMenuOpen(false);
                     }
