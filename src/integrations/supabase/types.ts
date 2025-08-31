@@ -345,29 +345,18 @@ export type Database = {
       }
     }
     Views: {
-      safe_public_profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string | null
-          display_id: string | null
-          display_name: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
-          display_id?: string | null
-          display_name?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string | null
-          display_id?: string | null
-          display_name?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
+      get_safe_public_profiles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avatar_url: string
+          created_at: string
+          display_id: string
+          display_name: string
+        }[]
+      }
       get_user_roles: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
