@@ -9,7 +9,7 @@ const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
-  const { isAuthenticated, hasRole, logout } = useAuth();
+  const { isAuthenticated, hasRole, logout, user } = useAuth();
 
   const navItems = [
     { name: "Home", href: "/" },
@@ -138,34 +138,44 @@ const Navigation = () => {
 
           {/* Enhanced CTA Button */}
           <div className="hidden md:block">
+            <div style={{marginBottom: '5px', fontSize: '10px', color: 'gray'}}>
+              DEBUG: isAuthenticated={String(isAuthenticated)}, userEmail={user?.email || 'none'}
+            </div>
             {isAuthenticated ? (
-              <Button 
-                onClick={async (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  alert('Sign out button clicked!');
-                  console.log('Sign out button clicked');
-                  try {
-                    await logout();
-                    alert('Logout completed successfully');
-                    console.log('Logout completed successfully');
-                  } catch (error) {
-                    alert('Logout failed: ' + error);
-                    console.error('Logout failed in Navigation:', error);
-                  }
-                }}
-                variant="outline"
-                className="hover:scale-105 transition-all duration-300"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
-            ) : (
-              <Link to="/auth">
-                <Button className="bg-seagram-green hover:bg-seagram-green/90 text-white hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-seagram-green/25">
-                  Get Started
+              <div>
+                <p style={{fontSize: '12px', color: 'red'}}>DEBUG: User is authenticated</p>
+                <Button 
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    alert('Sign out button clicked!');
+                    console.log('Sign out button clicked');
+                    try {
+                      await logout();
+                      alert('Logout completed successfully');
+                      console.log('Logout completed successfully');
+                    } catch (error) {
+                      alert('Logout failed: ' + error);
+                      console.error('Logout failed in Navigation:', error);
+                    }
+                  }}
+                  variant="outline"
+                  className="hover:scale-105 transition-all duration-300"
+                  style={{backgroundColor: 'red', color: 'white'}}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
                 </Button>
-              </Link>
+              </div>
+            ) : (
+              <div>
+                <p style={{fontSize: '12px', color: 'blue'}}>DEBUG: User is NOT authenticated</p>
+                <Link to="/auth">
+                  <Button className="bg-seagram-green hover:bg-seagram-green/90 text-white hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-seagram-green/25">
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
             )}
           </div>
 
