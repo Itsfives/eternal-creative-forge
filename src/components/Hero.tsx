@@ -98,7 +98,7 @@ const Hero = () => {
           <div ref={statsRef} className={`mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 transition-all duration-1000 delay-1100 ${statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="text-center group hover:scale-105 transition-transform duration-300">
               <div className="text-3xl md:text-4xl font-bold text-seagram-green">
-                <AnimatedCounter end={100} suffix="+" />
+                <AnimatedCounter end={4} suffix="+" />
               </div>
               <div className="text-sm text-muted-foreground group-hover:text-seagram-green transition-colors">Projects Completed</div>
             </div>
