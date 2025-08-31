@@ -7,15 +7,15 @@ const corsHeaders = {
 };
 
 interface AnalyticsEvent {
-  event: string;
+  action: string;
   category: string;
   label?: string;
   value?: number;
   userId?: string;
-  timestamp: string;
-  page: string;
-  userAgent: string;
-  referrer: string;
+  timestamp?: string;
+  page?: string;
+  userAgent?: string;
+  referrer?: string;
   sessionId?: string;
 }
 
@@ -37,18 +37,21 @@ serve(async (req) => {
       );
     }
 
-    // Parse the request body
-    const analyticsData: AnalyticsEvent = await req.json();
+    // Parse the request body - can be single event or array of events
+    const requestData = await req.json();
+    const events: AnalyticsEvent[] = Array.isArray(requestData) ? requestData : [requestData];
 
-    // Validate required fields
-    if (!analyticsData.event || !analyticsData.category) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields: event, category' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
+    // Validate required fields for each event
+    for (const event of events) {
+      if (!event.action || !event.category) {
+        return new Response(
+          JSON.stringify({ error: 'Missing required fields: action, category' }),
+          { 
+            status: 400, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
+      }
     }
 
     // Initialize Supabase client
@@ -57,13 +60,14 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Log the analytics event to console for debugging
-    console.log('Analytics Event Received:', {
-      timestamp: analyticsData.timestamp,
-      event: analyticsData.event,
-      category: analyticsData.category,
-      page: analyticsData.page,
-      userId: analyticsData.userId ? 'authenticated' : 'anonymous'
+    // Log the analytics events to console for debugging
+    console.log('Analytics Events Received:', {
+      count: events.length,
+      events: events.map(event => ({
+        action: event.action,
+        category: event.category,
+        value: event.value
+      }))
     });
 
     // Store analytics data in a simple analytics table (if it exists)
@@ -78,8 +82,9 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Analytics event processed',
-        timestamp: new Date().toISOString()
+        message: `${events.length} analytics event(s) processed`,
+        timestamp: new Date().toISOString(),
+        processed: events.length
       }),
       { 
         status: 200, 
