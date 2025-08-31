@@ -104,7 +104,7 @@ const Hero = () => {
             </div>
             <div className="text-center group hover:scale-105 transition-transform duration-300">
               <div className="text-3xl md:text-4xl font-bold text-violet-purple">
-                <AnimatedCounter end={50} suffix="+" />
+                <AnimatedCounter end={10} suffix="+" />
               </div>
               <div className="text-sm text-muted-foreground group-hover:text-violet-purple transition-colors">Happy Clients</div>
             </div>
