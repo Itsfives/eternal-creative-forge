@@ -2,20 +2,20 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
 import AnimatedCounter from "./AnimatedCounter";
-import LogoParticles from "./LogoParticles";
+import { LazyLogoParticles } from "./LazyWrapper";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { useAnalytics } from "@/hooks/useAnalytics";
+import { useOptimizedAnalytics } from "@/hooks/useOptimizedAnalytics";
 import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
   const [heroRef, heroVisible] = useScrollAnimation(0.1);
   const [statsRef, statsVisible] = useScrollAnimation(0.3);
-  const { trackInteraction, trackBusinessEvent } = useAnalytics();
+  const { trackInteraction, trackBusinessEvent } = useOptimizedAnalytics();
   const navigate = useNavigate();
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <LogoParticles />
+      <LazyLogoParticles />
       
       {/* Enhanced Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-background/50">
