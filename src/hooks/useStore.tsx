@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import type { Database } from '@/integrations/supabase/types';
 
 type StoreProduct = Database['public']['Tables']['store_products']['Row'];
@@ -17,6 +18,7 @@ export const useStore = () => {
   const [purchases, setPurchases] = useState<StorePurchaseWithProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { user, isAuthenticated } = useAuth();
 
   const fetchProducts = async () => {
     try {
@@ -40,8 +42,10 @@ export const useStore = () => {
 
   const fetchUserPurchases = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!isAuthenticated || !user) {
+        setPurchases([]);
+        return;
+      }
 
       const { data, error } = await supabase
         .from('store_purchases')
@@ -62,15 +66,12 @@ export const useStore = () => {
         description: "Failed to fetch your purchases",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
   const createPurchase = async (productId: string, amountPaid: number) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      if (!isAuthenticated || !user) throw new Error('User not authenticated');
 
       const purchaseData: StorePurchaseInsert = {
         user_id: user.id,
@@ -159,9 +160,60 @@ export const useStore = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
-    fetchUserPurchases();
-  }, []);
+    const loadData = async () => {
+      setLoading(true);
+      await fetchProducts();
+      if (isAuthenticated) {
+        await fetchUserPurchases();
+      }
+      setLoading(false);
+    };
+
+    loadData();
+
+    // Set up real-time subscription for products
+    const productsChannel = supabase
+      .channel('store-products-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'store_products'
+        },
+        () => {
+          fetchProducts();
+        }
+      )
+      .subscribe();
+
+    // Set up real-time subscription for purchases if authenticated
+    let purchasesChannel: any = null;
+    if (isAuthenticated && user) {
+      purchasesChannel = supabase
+        .channel('store-purchases-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'store_purchases',
+            filter: `user_id=eq.${user.id}`
+          },
+          () => {
+            fetchUserPurchases();
+          }
+        )
+        .subscribe();
+    }
+
+    return () => {
+      supabase.removeChannel(productsChannel);
+      if (purchasesChannel) {
+        supabase.removeChannel(purchasesChannel);
+      }
+    };
+  }, [isAuthenticated, user]); // Re-fetch when auth state changes
 
   return {
     products,

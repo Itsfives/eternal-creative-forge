@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import type { Database } from '@/integrations/supabase/types';
 
 type Portfolio = Database['public']['Tables']['portfolios']['Row'];
@@ -11,13 +12,21 @@ export const usePortfolio = () => {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { user, isAuthenticated, hasRole } = useAuth();
 
   const fetchPortfolios = async () => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      let query = supabase
         .from('portfolios')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*');
+
+      // If user is not authenticated or doesn't have special roles, only show published portfolios
+      if (!isAuthenticated || (!hasRole('admin') && !hasRole('cms_editor'))) {
+        query = query.eq('status', 'published');
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
       setPortfolios(data || []);
@@ -35,9 +44,16 @@ export const usePortfolio = () => {
 
   const createPortfolio = async (portfolio: PortfolioInsert) => {
     try {
+      if (!user) throw new Error('User not authenticated');
+      
+      const portfolioData = {
+        ...portfolio,
+        user_id: user.id
+      };
+
       const { data, error } = await supabase
         .from('portfolios')
-        .insert(portfolio)
+        .insert(portfolioData)
         .select()
         .single();
 
@@ -154,7 +170,7 @@ export const usePortfolio = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [isAuthenticated, hasRole]); // Re-fetch when auth state changes
 
   return {
     portfolios,
