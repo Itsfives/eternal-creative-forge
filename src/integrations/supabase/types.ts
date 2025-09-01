@@ -304,6 +304,41 @@ export type Database = {
         }
         Relationships: []
       }
+      project_team_members: {
+        Row: {
+          assigned_at: string | null
+          assigned_by: string | null
+          id: string
+          project_id: string | null
+          project_role: Database["public"]["Enums"]["project_role"]
+          user_id: string | null
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          id?: string
+          project_id?: string | null
+          project_role: Database["public"]["Enums"]["project_role"]
+          user_id?: string | null
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          id?: string
+          project_id?: string | null
+          project_role?: Database["public"]["Enums"]["project_role"]
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_team_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "client_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_profiles: {
         Row: {
           avatar_url: string | null
@@ -461,6 +496,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_project_role: {
+        Args: {
+          p_assigned_by?: string
+          p_project_id: string
+          p_role: Database["public"]["Enums"]["project_role"]
+          p_user_id: string
+        }
+        Returns: string
+      }
+      get_project_team_members: {
+        Args: { p_project_id: string }
+        Returns: {
+          assigned_at: string
+          avatar_url: string
+          display_name: string
+          email: string
+          project_role: Database["public"]["Enums"]["project_role"]
+          user_id: string
+        }[]
+      }
       get_safe_public_profiles: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -468,6 +523,18 @@ export type Database = {
           created_at: string
           display_id: string
           display_name: string
+        }[]
+      }
+      get_user_projects_with_roles: {
+        Args: { p_user_id: string }
+        Returns: {
+          assigned_at: string
+          project_description: string
+          project_id: string
+          project_name: string
+          project_priority: string
+          project_role: Database["public"]["Enums"]["project_role"]
+          project_status: string
         }[]
       }
       get_user_roles: {
@@ -481,9 +548,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      remove_project_member: {
+        Args: {
+          p_project_id: string
+          p_role?: Database["public"]["Enums"]["project_role"]
+          p_user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "cms_editor" | "client"
+      project_role: "owner" | "project_manager" | "developer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -612,6 +688,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "cms_editor", "client"],
+      project_role: ["owner", "project_manager", "developer"],
     },
   },
 } as const

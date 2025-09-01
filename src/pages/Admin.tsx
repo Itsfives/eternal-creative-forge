@@ -5,14 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Settings, Shield, BarChart3, Plus, UserPlus, HelpCircle, Home } from "lucide-react";
+import { Settings, Shield, BarChart3, Plus, UserPlus, HelpCircle, Home, FolderOpen, DollarSign } from "lucide-react";
 import { Link } from "react-router-dom";
+import { format } from "date-fns";
 import AdminStats from "@/components/AdminStats";
 import QuickStartGuide from "@/components/QuickStartGuide";
 import ClientSetupWizard from "@/components/ClientSetupWizard";
+import ProjectCreator from "@/components/ProjectCreator";
+import ProjectTeamManager from "@/components/ProjectTeamManager";
+import { useClientProjects } from "@/hooks/useClientProjects";
 
 const Admin = () => {
   const [showClientWizard, setShowClientWizard] = useState(false);
+  const { projects, refetch } = useClientProjects();
   
   const [users] = useState([
     { id: 1, name: "John Doe", email: "john@example.com", role: "Client", status: "Active", joined: "Nov 15, 2024" },
@@ -78,8 +83,12 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="projects" className="flex items-center gap-2">
+              <FolderOpen className="h-4 w-4" />
+              Projects
+            </TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
             <TabsTrigger value="reports">Reports</TabsTrigger>
@@ -150,6 +159,96 @@ const Admin = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="projects" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Project Management</h2>
+                <p className="text-muted-foreground">Manage projects and team assignments</p>
+              </div>
+              <ProjectCreator onProjectCreated={() => refetch()}>
+                <Button className="flex items-center gap-2 bg-seagram-green hover:bg-seagram-green/90">
+                  <Plus className="h-4 w-4" />
+                  Create Project
+                </Button>
+              </ProjectCreator>
+            </div>
+
+            <div className="grid gap-6">
+              {projects.length === 0 ? (
+                <Card>
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <FolderOpen className="h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No projects yet</h3>
+                    <p className="text-muted-foreground text-center mb-4">
+                      Create your first project to start managing teams and tracking progress
+                    </p>
+                    <ProjectCreator onProjectCreated={() => refetch()}>
+                      <Button className="bg-seagram-green hover:bg-seagram-green/90">Create First Project</Button>
+                    </ProjectCreator>
+                  </CardContent>
+                </Card>
+              ) : (
+                projects.map((project) => (
+                  <Card key={project.id}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <CardTitle className="flex items-center gap-2">
+                            {project.name}
+                            <Badge 
+                              variant={project.status === 'completed' ? 'default' : 'secondary'}
+                              className="capitalize"
+                            >
+                              {project.status.replace('-', ' ')}
+                            </Badge>
+                            <Badge 
+                              variant={project.priority === 'urgent' ? 'destructive' : 'outline'}
+                              className="capitalize"
+                            >
+                              {project.priority}
+                            </Badge>
+                          </CardTitle>
+                          <CardDescription>
+                            {project.description || 'No description provided'}
+                          </CardDescription>
+                        </div>
+                        <div className="text-right text-sm text-muted-foreground">
+                          <div>Progress: {project.progress}%</div>
+                          {project.deadline && (
+                            <div>Due: {format(new Date(project.deadline), 'MMM dd, yyyy')}</div>
+                          )}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {project.client_company && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="font-medium">Client:</span>
+                            <span>{project.client_company}</span>
+                          </div>
+                        )}
+                        
+                        {project.budget && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <DollarSign className="h-4 w-4" />
+                            <span>Budget: ${project.budget.toLocaleString()}</span>
+                          </div>
+                        )}
+
+                        <ProjectTeamManager 
+                          projectId={project.id}
+                          projectName={project.name}
+                          onTeamUpdate={() => refetch()}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
           </TabsContent>
 
           <TabsContent value="users" className="space-y-6">
