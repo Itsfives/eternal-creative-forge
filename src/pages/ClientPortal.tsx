@@ -12,12 +12,17 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useClientProjects } from "@/hooks/useClientProjects";
 import { useClientCommunications } from "@/hooks/useClientCommunications";
+import CommunicationComposer from "@/components/CommunicationComposer";
 
 const ClientPortal = () => {
   const { purchases, loading: storeLoading, incrementDownloadCount } = useStore();
   const { user } = useAuth();
   const { projects, loading: projectsLoading, getActiveProjects } = useClientProjects();
-  const { communications, loading: communicationsLoading, getRecentCommunications, getUnreadCount, markAsRead } = useClientCommunications();
+  const { communications, loading: communicationsLoading, getRecentCommunications, getUnreadCount, markAsRead, sendCommunication } = useClientCommunications();
+  
+  const handleSendCommunication = async (messageData: Parameters<typeof sendCommunication>[0]) => {
+    await sendCommunication(messageData);
+  };
   
   const activeProjects = getActiveProjects();
   const recentMessages = getRecentCommunications(3);
@@ -474,10 +479,11 @@ const ClientPortal = () => {
                     <CardTitle>Messages</CardTitle>
                     <CardDescription>Communicate with your project team</CardDescription>
                   </div>
-                  <Button className="bg-seagram-green hover:bg-seagram-green/90">
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    New Message
-                  </Button>
+                  <CommunicationComposer
+                    projects={projects.map(p => ({ id: p.id, name: p.name }))}
+                    onSend={handleSendCommunication}
+                    loading={communicationsLoading}
+                  />
                 </div>
               </CardHeader>
               <CardContent>

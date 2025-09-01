@@ -92,6 +92,47 @@ export const useClientCommunications = () => {
     }
   }, [user]);
 
+  const sendCommunication = useCallback(async (messageData: {
+    project_id?: string;
+    subject?: string;
+    message: string;
+    message_type: 'general' | 'milestone' | 'feedback_request' | 'approval_needed';
+    priority: 'low' | 'normal' | 'high' | 'urgent';
+  }) => {
+    if (!user) throw new Error('User not authenticated');
+
+    try {
+      console.log('[useClientCommunications] Sending communication', messageData);
+      
+      const { data, error } = await supabase
+        .from('client_communications')
+        .insert({
+          user_id: user.id,
+          from_user_id: user.id,
+          from_name: 'User', // Will be updated by trigger
+          project_id: messageData.project_id || null,
+          subject: messageData.subject || null,
+          message: messageData.message,
+          message_type: messageData.message_type,
+          priority: messageData.priority,
+          is_unread: true,
+          // from_role will be populated by the trigger
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Refresh communications to include the new message
+      await fetchCommunications();
+
+      return data;
+    } catch (err) {
+      console.error('Error sending communication:', err);
+      throw err;
+    }
+  }, [user, fetchCommunications]);
+
   const getUnreadCount = useCallback(() => {
     return communications.filter(comm => comm.is_unread).length;
   }, [communications]);
@@ -150,6 +191,7 @@ export const useClientCommunications = () => {
     error,
     fetchCommunications,
     markAsRead,
+    sendCommunication,
     getUnreadCount,
     getRecentCommunications,
     getCommunicationsByProject,
