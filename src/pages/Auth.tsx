@@ -9,12 +9,14 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Eye, EyeOff } from "lucide-react";
+import { PasswordStrengthIndicator } from "@/components/PasswordStrengthIndicator";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -34,6 +36,16 @@ const Auth = () => {
       toast({
         title: "Error",
         description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // For signup, validate password strength
+    if (type === 'signup' && !isPasswordValid) {
+      toast({
+        title: "Password Error",
+        description: "Please ensure your password meets all security requirements",
         variant: "destructive",
       });
       return;
@@ -208,11 +220,16 @@ const Auth = () => {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
+                  <PasswordStrengthIndicator
+                    password={password}
+                    email={email}
+                    onValidationChange={setIsPasswordValid}
+                  />
                 </div>
                 <Button 
                   onClick={() => handleEmailAuth('signup')} 
                   className="w-full bg-seagram-green hover:bg-seagram-green/90"
-                  disabled={loading}
+                  disabled={loading || (password && !isPasswordValid)}
                 >
                   {loading ? "Creating account..." : "Sign Up"}
                 </Button>

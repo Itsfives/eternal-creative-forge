@@ -2,3 +2,6 @@ project_id = "zdhwmlnvbqbeyxbdfwhx"
 
 [functions.analytics]
 verify_jwt = false
+
+[functions.password-validator]
+verify_jwt = false
