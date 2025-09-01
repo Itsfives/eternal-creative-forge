@@ -39,35 +39,23 @@ export const useClientCommunications = () => {
       setLoading(true);
       setError(null);
 
-      // Fetch communications from base table with optional filtering
-      const limitToUse = typeof limit === 'number' ? limit : 1000;
-      console.log('[useClientCommunications] Fetching from client_communications', {
-        limit: limitToUse,
-        project_id: projectId
+      // Use SQL-as-API via RPC: get_recent_communications(limit_count, project_id)
+      const limitToUse = typeof limit === 'number' ? limit : 10;
+      const projectParam = projectId ?? null;
+
+      console.log('[useClientCommunications] Fetching via RPC get_recent_communications', {
+        limit_count: limitToUse,
+        project_id: projectParam
       });
 
-      let query = supabase
-        .from('client_communications')
-        .select(`
-          *,
-          client_projects!inner(name)
-        `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (projectId) {
-        query = query.eq('project_id', projectId);
-      }
-
-      if (limitToUse < 1000) {
-        query = query.limit(limitToUse);
-      }
-
-      const { data, error: fetchError } = await query;
+      const { data, error: fetchError } = await (supabase as any).rpc('get_recent_communications', {
+        limit_count: limitToUse,
+        project_id: projectParam
+      });
 
       if (fetchError) throw fetchError;
 
-      setCommunications((data || []) as ClientCommunication[]);
+      setCommunications((data as ClientCommunication[]) || []);
     } catch (err) {
       console.error('Error fetching communications:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch communications');
@@ -80,14 +68,18 @@ export const useClientCommunications = () => {
     if (!user) return;
 
     try {
-      console.log('[useClientCommunications] Marking as read via direct update', { id });
-      const { error } = await supabase
-        .from('client_communications')
-        .update({ is_unread: false })
-        .eq('id', id)
-        .eq('user_id', user.id);
+      console.log('[useClientCommunications] Marking as read via RPC mark_communication_read', { id });
+      const { data, error } = await (supabase as any).rpc('mark_communication_read', { 
+        p_id: id 
+      });
 
       if (error) throw error;
+
+      const success = Boolean(data);
+      if (!success) {
+        console.warn('[useClientCommunications] mark_communication_read returned false');
+        return;
+      }
 
       // Update local state
       setCommunications(prev =>
