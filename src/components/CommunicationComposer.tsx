@@ -28,7 +28,7 @@ const CommunicationComposer: React.FC<CommunicationComposerProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
-    project_id: '',
+    project_id: 'none',
     subject: '',
     message: '',
     message_type: 'general' as const,
@@ -52,7 +52,7 @@ const CommunicationComposer: React.FC<CommunicationComposerProps> = ({
     setIsSubmitting(true);
     try {
       await onSend({
-        project_id: formData.project_id || undefined,
+        project_id: formData.project_id === 'none' ? undefined : formData.project_id,
         subject: formData.subject || undefined,
         message: formData.message,
         message_type: formData.message_type,
@@ -61,7 +61,7 @@ const CommunicationComposer: React.FC<CommunicationComposerProps> = ({
 
       // Reset form and close modal
       setFormData({
-        project_id: '',
+        project_id: 'none',
         subject: '',
         message: '',
         message_type: 'general',
@@ -123,7 +123,7 @@ const CommunicationComposer: React.FC<CommunicationComposerProps> = ({
                   <SelectValue placeholder="Select a project" />
                 </SelectTrigger>
                 <SelectContent className="bg-background border shadow-md">
-                  <SelectItem value="">No specific project</SelectItem>
+                  <SelectItem value="none">No specific project</SelectItem>
                   {projects.map((project) => (
                     <SelectItem key={project.id} value={project.id}>
                       {project.name}
