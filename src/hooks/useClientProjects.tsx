@@ -37,13 +37,20 @@ export const useClientProjects = () => {
       setLoading(true);
       setError(null);
 
-      // Use SQL-as-API via RPC: get_client_projects(status_filter)
-      const statusParam = statusFilter && statusFilter !== 'all' ? statusFilter : null;
-      console.log('[useClientProjects] Fetching via RPC get_client_projects with status:', statusParam);
+      // Fetch projects from base table with status filtering
+      console.log('[useClientProjects] Fetching from client_projects with status:', statusFilter);
 
-      const { data, error: fetchError } = await supabase.rpc('get_client_projects', {
-        status_filter: statusParam,
-      });
+      let query = supabase
+        .from('client_projects')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (statusFilter && statusFilter !== 'all') {
+        query = query.eq('status', statusFilter);
+      }
+
+      const { data, error: fetchError } = await query;
 
       if (fetchError) throw fetchError;
 
