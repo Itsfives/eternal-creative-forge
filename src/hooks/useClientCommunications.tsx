@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
@@ -17,9 +18,12 @@ export interface ClientCommunication {
   attachments?: any;
   created_at: string;
   updated_at: string;
+  // When previously using a join we exposed project name via nested object:
   client_projects?: {
     name: string;
   };
+  // With the new view we get a flat project_name column
+  project_name?: string;
 }
 
 export const useClientCommunications = () => {
@@ -35,25 +39,20 @@ export const useClientCommunications = () => {
       setLoading(true);
       setError(null);
 
-      let query = supabase
-        .from('client_communications')
-        .select(`
-          *,
-          client_projects (
-            name
-          )
-        `)
-        .order('created_at', { ascending: false });
+      // Use SQL-as-API via RPC:
+      // get_recent_communications(limit_count integer DEFAULT 10, project_id uuid DEFAULT NULL)
+      const limitToUse = typeof limit === 'number' ? limit : 1000; // fetch many to preserve previous "all" behavior
+      const projectParam = projectId ?? null;
 
-      if (limit) {
-        query = query.limit(limit);
-      }
+      console.log('[useClientCommunications] Fetching via RPC get_recent_communications', {
+        limit_count: limitToUse,
+        project_id: projectParam
+      });
 
-      if (projectId) {
-        query = query.eq('project_id', projectId);
-      }
-
-      const { data, error: fetchError } = await query;
+      const { data, error: fetchError } = await supabase.rpc('get_recent_communications', {
+        limit_count: limitToUse,
+        project_id: projectParam
+      });
 
       if (fetchError) throw fetchError;
 
@@ -70,17 +69,20 @@ export const useClientCommunications = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
-        .from('client_communications')
-        .update({ is_unread: false })
-        .eq('id', id)
-        .eq('user_id', user.id);
+      console.log('[useClientCommunications] Marking as read via RPC mark_communication_read', { id });
+      const { data, error } = await supabase.rpc('mark_communication_read', { p_id: id });
 
       if (error) throw error;
 
+      const success = Boolean(data);
+      if (!success) {
+        console.warn('[useClientCommunications] mark_communication_read returned false');
+        return;
+      }
+
       // Update local state
-      setCommunications(prev => 
-        prev.map(comm => 
+      setCommunications(prev =>
+        prev.map(comm =>
           comm.id === id ? { ...comm, is_unread: false } : comm
         )
       );
@@ -130,6 +132,7 @@ export const useClientCommunications = () => {
           filter: `user_id=eq.${user.id}`
         },
         () => {
+          console.log('[useClientCommunications] Realtime change detected, refetching...');
           fetchCommunications();
         }
       )

@@ -18,6 +18,10 @@ export interface ClientProject {
   priority: 'low' | 'medium' | 'high' | 'urgent';
   created_at: string;
   updated_at: string;
+  // Computed fields from the view
+  remaining_progress?: number;
+  days_until_deadline?: number | null;
+  is_overdue?: boolean;
 }
 
 export const useClientProjects = () => {
@@ -33,16 +37,13 @@ export const useClientProjects = () => {
       setLoading(true);
       setError(null);
 
-      let query = supabase
-        .from('client_projects')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Use SQL-as-API via RPC: get_client_projects(status_filter)
+      const statusParam = statusFilter && statusFilter !== 'all' ? statusFilter : null;
+      console.log('[useClientProjects] Fetching via RPC get_client_projects with status:', statusParam);
 
-      if (statusFilter && statusFilter !== 'all') {
-        query = query.eq('status', statusFilter);
-      }
-
-      const { data, error: fetchError } = await query;
+      const { data, error: fetchError } = await supabase.rpc('get_client_projects', {
+        status_filter: statusParam,
+      });
 
       if (fetchError) throw fetchError;
 
@@ -59,6 +60,7 @@ export const useClientProjects = () => {
     if (!user) return null;
 
     try {
+      // Keep using the base table for a single record fetch to avoid view typing issues
       const { data, error } = await supabase
         .from('client_projects')
         .select('*')
@@ -66,7 +68,7 @@ export const useClientProjects = () => {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as ClientProject;
     } catch (err) {
       console.error('Error fetching project:', err);
       return null;
@@ -74,7 +76,7 @@ export const useClientProjects = () => {
   }, [user]);
 
   const getActiveProjects = useCallback(() => {
-    return projects.filter(project => 
+    return projects.filter(project =>
       project.status === 'planning' || project.status === 'in-progress'
     );
   }, [projects]);
@@ -92,7 +94,7 @@ export const useClientProjects = () => {
   useEffect(() => {
     if (!user) return;
 
-    // Set up real-time subscription
+    // Real-time subscription remains on the base table
     const channel = supabase
       .channel('client-projects-changes')
       .on(
@@ -104,6 +106,7 @@ export const useClientProjects = () => {
           filter: `user_id=eq.${user.id}`
         },
         () => {
+          console.log('[useClientProjects] Realtime change detected, refetching...');
           fetchProjects();
         }
       )
