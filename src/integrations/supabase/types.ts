@@ -14,6 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
+      client_communications: {
+        Row: {
+          attachments: Json | null
+          created_at: string
+          from_name: string
+          from_role: string | null
+          from_user_id: string | null
+          id: string
+          is_unread: boolean
+          message: string
+          message_type: string
+          priority: string
+          project_id: string | null
+          subject: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          created_at?: string
+          from_name: string
+          from_role?: string | null
+          from_user_id?: string | null
+          id?: string
+          is_unread?: boolean
+          message: string
+          message_type?: string
+          priority?: string
+          project_id?: string | null
+          subject?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          created_at?: string
+          from_name?: string
+          from_role?: string | null
+          from_user_id?: string | null
+          id?: string
+          is_unread?: boolean
+          message?: string
+          message_type?: string
+          priority?: string
+          project_id?: string | null
+          subject?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_communications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "client_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_projects: {
+        Row: {
+          budget: number | null
+          client_company: string | null
+          created_at: string
+          deadline: string | null
+          description: string | null
+          id: string
+          name: string
+          next_milestone: string | null
+          phase: string | null
+          priority: string
+          progress: number
+          status: string
+          team_lead: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget?: number | null
+          client_company?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          next_milestone?: string | null
+          phase?: string | null
+          priority?: string
+          progress?: number
+          status?: string
+          team_lead?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget?: number | null
+          client_company?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          next_milestone?: string | null
+          phase?: string | null
+          priority?: string
+          progress?: number
+          status?: string
+          team_lead?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       media: {
         Row: {
           alt_text: string | null

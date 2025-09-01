@@ -10,34 +10,18 @@ import { useStore } from "@/hooks/useStore";
 import { DownloadCard } from "@/components/DownloadCard";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useClientProjects } from "@/hooks/useClientProjects";
+import { useClientCommunications } from "@/hooks/useClientCommunications";
 
 const ClientPortal = () => {
   const { purchases, loading: storeLoading, incrementDownloadCount } = useStore();
   const { user } = useAuth();
-  const [activeProjects] = useState([
-    {
-      id: 1,
-      name: "Website Redesign",
-      status: "In Progress", 
-      progress: 65,
-      deadline: "Dec 15, 2024",
-      description: "Complete website overhaul with modern design",
-      phase: "Design Review",
-      nextMilestone: "Client feedback on mockups",
-      teamLead: "Sarah Johnson"
-    },
-    {
-      id: 2,
-      name: "Mobile App Development",
-      status: "Planning",
-      progress: 25,
-      deadline: "Jan 30, 2025", 
-      description: "Native mobile application for iOS and Android",
-      phase: "Requirements Gathering",
-      nextMilestone: "Technical specification review",
-      teamLead: "Mike Chen"
-    }
-  ]);
+  const { projects, loading: projectsLoading, getActiveProjects } = useClientProjects();
+  const { communications, loading: communicationsLoading, getRecentCommunications, getUnreadCount, markAsRead } = useClientCommunications();
+  
+  const activeProjects = getActiveProjects();
+  const recentMessages = getRecentCommunications(3);
+  const unreadCount = getUnreadCount();
 
   const [recentFiles] = useState([
     { name: "Project Proposal.pdf", date: "Dec 1, 2024", size: "2.4 MB", type: "document" },
@@ -51,11 +35,6 @@ const ClientPortal = () => {
     { id: "INV-002", amount: 1200, status: "Pending", date: "Dec 1, 2024", project: "Mobile App Development" }
   ]);
 
-  const [messages] = useState([
-    { id: 1, from: "Project Manager", message: "Latest design mockups are ready for review", time: "2 hours ago", unread: true },
-    { id: 2, from: "Developer", message: "Technical questions about the contact form", time: "1 day ago", unread: false },
-    { id: 3, from: "Designer", message: "Color scheme approved, moving to next phase", time: "3 days ago", unread: false }
-  ]);
 
   return (
     <div className="min-h-screen bg-background pt-20">
@@ -147,7 +126,7 @@ const ClientPortal = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">{messages.filter(m => m.unread).length}</div>
+                  <div className="text-3xl font-bold">{unreadCount}</div>
                   <p className="text-sm text-muted-foreground">Unread messages</p>
                 </CardContent>
               </Card>
@@ -186,45 +165,62 @@ const ClientPortal = () => {
                   <CardDescription>Your active project status and progress</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {activeProjects.map((project) => (
-                      <div key={project.id} className="border rounded-lg p-4 hover:bg-muted/30 transition-colors">
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <h4 className="font-medium">{project.name}</h4>
-                            <p className="text-sm text-muted-foreground">{project.description}</p>
-                          </div>
-                          <Badge variant={project.status === "In Progress" ? "default" : "secondary"}>
-                            {project.status}
-                          </Badge>
+                  {projectsLoading ? (
+                    <div className="space-y-4">
+                      {Array.from({ length: 2 }).map((_, i) => (
+                        <div key={i} className="border rounded-lg p-4 animate-pulse">
+                          <div className="h-6 bg-muted rounded w-3/4 mb-2" />
+                          <div className="h-4 bg-muted rounded w-1/2 mb-4" />
+                          <div className="h-2 bg-muted rounded mb-2" />
+                          <div className="h-4 bg-muted rounded w-1/3" />
                         </div>
-                        
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span>Progress</span>
-                            <span>{project.progress}%</span>
+                      ))}
+                    </div>
+                  ) : activeProjects.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">No active projects at the moment.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {activeProjects.map((project) => (
+                        <div key={project.id} className="border rounded-lg p-4 hover:bg-muted/30 transition-colors">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h4 className="font-medium">{project.name}</h4>
+                              <p className="text-sm text-muted-foreground">{project.description}</p>
+                            </div>
+                            <Badge variant={project.status === "in-progress" ? "default" : "secondary"}>
+                              {project.status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                            </Badge>
                           </div>
-                          <Progress value={project.progress} />
-                        </div>
-                        
-                        <div className="mt-3 grid grid-cols-2 gap-4 text-sm">
-                          <div className="flex items-center text-muted-foreground">
-                            <Calendar className="w-4 h-4 mr-1" />
-                            Due {project.deadline}
+                          
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>Progress</span>
+                              <span>{project.progress}%</span>
+                            </div>
+                            <Progress value={project.progress} />
                           </div>
-                          <div className="flex items-center text-muted-foreground">
-                            <Clock className="w-4 h-4 mr-1" />
-                            {project.phase}
+                          
+                          <div className="mt-3 grid grid-cols-2 gap-4 text-sm">
+                            <div className="flex items-center text-muted-foreground">
+                              <Calendar className="w-4 h-4 mr-1" />
+                              Due {project.deadline ? new Date(project.deadline).toLocaleDateString() : 'TBD'}
+                            </div>
+                            <div className="flex items-center text-muted-foreground">
+                              <Clock className="w-4 h-4 mr-1" />
+                              {project.phase || 'Planning'}
+                            </div>
+                          </div>
+                          
+                          <div className="mt-3 p-2 bg-blue-50 rounded text-sm">
+                            <p className="font-medium text-blue-900">Next: {project.next_milestone || 'To be determined'}</p>
+                            <p className="text-blue-700">Team Lead: {project.team_lead || 'Assigned soon'}</p>
                           </div>
                         </div>
-                        
-                        <div className="mt-3 p-2 bg-blue-50 rounded text-sm">
-                          <p className="font-medium text-blue-900">Next: {project.nextMilestone}</p>
-                          <p className="text-blue-700">Team Lead: {project.teamLead}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -234,25 +230,56 @@ const ClientPortal = () => {
                   <CardDescription>Latest updates from your project team</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {messages.slice(0, 3).map((message) => (
-                      <div key={message.id} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-muted/30 transition-colors">
-                        <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${message.unread ? 'bg-seagram-green' : 'bg-muted'}`} />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium truncate">{message.from}</p>
-                            <p className="text-xs text-muted-foreground flex-shrink-0 ml-2">{message.time}</p>
+                  {communicationsLoading ? (
+                    <div className="space-y-3">
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="flex items-start space-x-3 p-3 border rounded-lg animate-pulse">
+                          <div className="w-2 h-2 rounded-full mt-2 bg-muted" />
+                          <div className="flex-1">
+                            <div className="h-4 bg-muted rounded w-1/3 mb-2" />
+                            <div className="h-3 bg-muted rounded w-3/4" />
                           </div>
-                          <p className="text-sm text-muted-foreground">{message.message}</p>
-                          {message.unread && (
-                            <Button size="sm" variant="outline" className="mt-2">
-                              Reply
-                            </Button>
-                          )}
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : recentMessages.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">No recent communications.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {recentMessages.map((message) => (
+                        <div key={message.id} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-muted/30 transition-colors">
+                          <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${message.is_unread ? 'bg-seagram-green' : 'bg-muted'}`} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium truncate">{message.from_name}</p>
+                              <p className="text-xs text-muted-foreground flex-shrink-0 ml-2">
+                                {new Date(message.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                            {message.subject && (
+                              <p className="text-sm font-medium text-seagram-green">{message.subject}</p>
+                            )}
+                            <p className="text-sm text-muted-foreground">{message.message}</p>
+                            {message.from_role && (
+                              <p className="text-xs text-muted-foreground mt-1">{message.from_role}</p>
+                            )}
+                            {message.is_unread && (
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="mt-2"
+                                onClick={() => markAsRead(message.id)}
+                              >
+                                Mark as Read
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <Button className="w-full mt-4 bg-seagram-green hover:bg-seagram-green/90">
                     <MessageCircle className="w-4 h-4 mr-2" />
                     View All Messages
@@ -263,48 +290,79 @@ const ClientPortal = () => {
           </TabsContent>
 
           <TabsContent value="projects" className="space-y-6">
-            <div className="grid gap-6">
-              {activeProjects.map((project) => (
-                <Card key={project.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-xl">{project.name}</CardTitle>
-                        <CardDescription>{project.description}</CardDescription>
-                      </div>
-                      <Badge variant={project.status === "In Progress" ? "default" : "secondary"}>
-                        {project.status}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="flex justify-between text-sm mb-2">
-                          <span>Progress</span>
-                          <span>{project.progress}%</span>
-                        </div>
-                        <Progress value={project.progress} />
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4 mr-1" />
-                          Due {project.deadline}
-                        </div>
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Calendar className="w-4 h-4 mr-1" />
-                          {project.phase}
+            {projectsLoading ? (
+              <div className="grid gap-6">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Card key={i} className="animate-pulse">
+                    <CardHeader>
+                      <div className="h-6 bg-muted rounded w-3/4 mb-2" />
+                      <div className="h-4 bg-muted rounded w-1/2" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="h-2 bg-muted rounded" />
+                        <div className="h-4 bg-muted rounded w-2/3" />
+                        <div className="flex space-x-2">
+                          <div className="h-9 bg-muted rounded w-24" />
+                          <div className="h-9 bg-muted rounded w-32" />
                         </div>
                       </div>
-                      <div className="flex space-x-2">
-                        <Button size="sm">View Details</Button>
-                        <Button size="sm" variant="outline">Download Files</Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : projects.length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <CheckCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No projects yet</h3>
+                  <p className="text-muted-foreground">Your projects will appear here once they are created.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-6">
+                {projects.map((project) => (
+                  <Card key={project.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-xl">{project.name}</CardTitle>
+                          <CardDescription>{project.description}</CardDescription>
+                        </div>
+                        <Badge variant={project.status === "in-progress" ? "default" : "secondary"}>
+                          {project.status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </Badge>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div>
+                          <div className="flex justify-between text-sm mb-2">
+                            <span>Progress</span>
+                            <span>{project.progress}%</span>
+                          </div>
+                          <Progress value={project.progress} />
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <Clock className="w-4 h-4 mr-1" />
+                            Due {project.deadline ? new Date(project.deadline).toLocaleDateString() : 'TBD'}
+                          </div>
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <Calendar className="w-4 h-4 mr-1" />
+                            {project.phase || 'Planning'}
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Button size="sm">View Details</Button>
+                          <Button size="sm" variant="outline">Download Files</Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="files" className="space-y-6">
@@ -423,20 +481,61 @@ const ClientPortal = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {messages.map((message) => (
-                    <div key={message.id} className="flex items-start space-x-4 p-4 border rounded-lg">
-                      <div className={`w-3 h-3 rounded-full mt-2 ${message.unread ? 'bg-seagram-green' : 'bg-muted'}`} />
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start">
-                          <p className="font-medium">{message.from}</p>
-                          <p className="text-sm text-muted-foreground">{message.time}</p>
+                {communicationsLoading ? (
+                  <div className="space-y-4">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="flex items-start space-x-4 p-4 border rounded-lg animate-pulse">
+                        <div className="w-3 h-3 rounded-full mt-2 bg-muted" />
+                        <div className="flex-1">
+                          <div className="h-4 bg-muted rounded w-1/3 mb-2" />
+                          <div className="h-3 bg-muted rounded w-3/4" />
                         </div>
-                        <p className="text-muted-foreground mt-1">{message.message}</p>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : communications.length === 0 ? (
+                  <div className="text-center py-12">
+                    <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-medium mb-2">No messages yet</h3>
+                    <p className="text-muted-foreground">Messages from your project team will appear here.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {communications.map((message) => (
+                      <div key={message.id} className="flex items-start space-x-4 p-4 border rounded-lg hover:bg-muted/30 transition-colors">
+                        <div className={`w-3 h-3 rounded-full mt-2 ${message.is_unread ? 'bg-seagram-green' : 'bg-muted'}`} />
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start">
+                            <p className="font-medium">{message.from_name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(message.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          {message.subject && (
+                            <p className="text-sm font-medium text-seagram-green mb-1">{message.subject}</p>
+                          )}
+                          <p className="text-muted-foreground mt-1">{message.message}</p>
+                          {message.from_role && (
+                            <p className="text-xs text-muted-foreground mt-2">{message.from_role}</p>
+                          )}
+                          {message.client_projects?.name && (
+                            <p className="text-xs text-blue-600 mt-1">Project: {message.client_projects.name}</p>
+                          )}
+                          {message.is_unread && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="mt-2"
+                              onClick={() => markAsRead(message.id)}
+                            >
+                              Mark as Read
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
