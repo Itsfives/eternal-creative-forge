@@ -24,6 +24,8 @@ import MediaLibrary from "@/components/MediaLibrary";
 import { usePortfolio } from "@/hooks/usePortfolio";
 import { usePages } from "@/hooks/usePages";
 import { useMedia } from "@/hooks/useMedia";
+import StoreManager from "@/components/StoreManager";
+import OrderManager from "@/components/OrderManager";
 import { format } from "date-fns";
 
 interface CMSNavigationProps {
@@ -97,6 +99,20 @@ const CMSNavigation = ({ onSelectSection, activeSection }: CMSNavigationProps) =
       icon: Image,
       description: "Upload and manage images and files",
       count: media.length
+    },
+    {
+      id: "store",
+      title: "Store Products",
+      icon: Monitor,
+      description: "Manage store products and inventory",
+      count: 0
+    },
+    {
+      id: "orders",
+      title: "Orders",
+      icon: Users,
+      description: "Manage customer orders and purchases",
+      count: 0
     },
     {
       id: "users",
@@ -340,6 +356,10 @@ const CMSNavigation = ({ onSelectSection, activeSection }: CMSNavigationProps) =
             )}
 
             {activeSection === "media" && <MediaLibrary />}
+            
+            {activeSection === "store" && <StoreManager />}
+            
+            {activeSection === "orders" && <OrderManager />}
 
             {activeSection === "preview" && (
               <div className="text-center py-16">
