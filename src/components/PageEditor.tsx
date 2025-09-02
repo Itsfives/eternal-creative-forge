@@ -1,13 +1,18 @@
-
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Save, Eye, ArrowLeft, Settings } from "lucide-react";
-import RichTextEditor from "./RichTextEditor";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Eye, Save } from "lucide-react";
+import RichTextEditor from "@/components/RichTextEditor";
+import { usePages } from "@/hooks/usePages";
+import { useToast } from "@/hooks/use-toast";
+import type { Database } from "@/integrations/supabase/types";
+
+type Page = Database['public']['Tables']['pages']['Row'];
 
 interface PageEditorProps {
   pageId?: string;
@@ -15,184 +20,225 @@ interface PageEditorProps {
 }
 
 const PageEditor = ({ pageId, onBack }: PageEditorProps) => {
-  const [pageData, setPageData] = useState({
-    title: "Home Page",
-    slug: "home",
-    status: "Published",
-    metaTitle: "Welcome to Eternals Studio",
-    metaDescription: "Professional web development and design services",
-    content: "Welcome to **Eternals Studio**! We create amazing websites and digital experiences.",
-    heroTitle: "Welcome to Eternals Studio",
-    heroSubtitle: "Professional web development and design services",
-    heroButtonText: "Get Started",
-    heroButtonLink: "/contact"
+  const [pageData, setPageData] = useState<Partial<Page>>({
+    title: "",
+    slug: "",
+    content: "",
+    meta_description: "",
+    status: "draft",
+    template: "default"
   });
+  const [loading, setLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(!!pageId && pageId !== "new");
+  
+  const { createPage, updatePage, pages } = usePages();
+  const { toast } = useToast();
 
-  const handleSave = () => {
-    console.log("Saving page:", pageData);
-    // Here you would typically save to your backend
+  // Load existing page data if editing
+  useEffect(() => {
+    if (pageId && pageId !== "new" && pages.length > 0) {
+      const existingPage = pages.find(p => p.id === pageId);
+      if (existingPage) {
+        setPageData(existingPage);
+      }
+    }
+  }, [pageId, pages]);
+
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      
+      if (!pageData.title || !pageData.slug) {
+        toast({
+          title: "Error",
+          description: "Title and slug are required",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (isEditing && pageId && pageId !== "new") {
+        await updatePage(pageId, {
+          title: pageData.title,
+          slug: pageData.slug,
+          content: pageData.content || "",
+          meta_description: pageData.meta_description,
+          status: pageData.status,
+          template: pageData.template,
+        });
+      } else {
+        await createPage({
+          title: pageData.title,
+          slug: pageData.slug,
+          content: pageData.content || "",
+          meta_description: pageData.meta_description,
+          status: pageData.status || "draft",
+          template: pageData.template || "default",
+        });
+      }
+      
+      onBack();
+    } catch (error) {
+      console.error("Error saving page:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  };
+
+  const handleTitleChange = (title: string) => {
+    setPageData(prev => ({ 
+      ...prev, 
+      title,
+      slug: prev.slug || generateSlug(title)
+    }));
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" onClick={onBack}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Pages
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">{pageData.title}</h1>
-            <p className="text-muted-foreground">Edit your page content and settings</p>
+    <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" onClick={onBack}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Pages
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold">
+                {isEditing ? `Edit ${pageData.title || "Page"}` : "Create New Page"}
+              </h1>
+              <p className="text-muted-foreground">
+                {isEditing ? "Update your page content and settings" : "Create a new page for your website"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Badge variant={pageData.status === "published" ? "default" : "secondary"}>
+              {pageData.status === "published" ? "Published" : "Draft"}
+            </Badge>
+            <Button variant="outline" size="sm">
+              <Eye className="w-4 h-4 mr-2" />
+              Preview
+            </Button>
+            <Button 
+              onClick={handleSave} 
+              disabled={loading}
+              className="bg-seagram-green hover:bg-seagram-green/90"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {loading ? "Saving..." : (isEditing ? "Update Page" : "Save Page")}
+            </Button>
           </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Badge variant={pageData.status === "Published" ? "default" : "secondary"}>
-            {pageData.status}
-          </Badge>
-          <Button variant="outline">
-            <Eye className="h-4 w-4 mr-2" />
-            Preview
-          </Button>
-          <Button onClick={handleSave}>
-            <Save className="h-4 w-4 mr-2" />
-            Save Changes
-          </Button>
-        </div>
+
+        <Tabs defaultValue="content" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="content">Content</TabsTrigger>
+            <TabsTrigger value="seo">SEO Settings</TabsTrigger>
+            <TabsTrigger value="settings">Page Settings</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="content" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-semibold">Page Content</h3>
+                <p className="text-muted-foreground">Edit the main content of your page</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Page Title</label>
+                  <Input
+                    placeholder="Enter page title"
+                    value={pageData.title || ""}
+                    onChange={(e) => handleTitleChange(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Slug</label>
+                  <Input
+                    placeholder="page-url-slug"
+                    value={pageData.slug || ""}
+                    onChange={(e) => setPageData(prev => ({ ...prev, slug: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Content</label>
+                  <RichTextEditor
+                    content={pageData.content || ""}
+                    onChange={(content) => setPageData(prev => ({ ...prev, content }))}
+                    placeholder="Start writing your page content..."
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="seo" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-semibold">SEO Settings</h3>
+                <p className="text-muted-foreground">Optimize your page for search engines</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Meta Description</label>
+                  <Textarea
+                    placeholder="Brief description for search engines (160 characters max)"
+                    value={pageData.meta_description || ""}
+                    onChange={(e) => setPageData(prev => ({ ...prev, meta_description: e.target.value }))}
+                    maxLength={160}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {(pageData.meta_description || "").length}/160 characters
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-semibold">Page Settings</h3>
+                <p className="text-muted-foreground">Configure page properties</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Status</label>
+                  <Select value={pageData.status || "draft"} onValueChange={(value) => setPageData(prev => ({ ...prev, status: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="published">Published</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Template</label>
+                  <Select value={pageData.template || "default"} onValueChange={(value) => setPageData(prev => ({ ...prev, template: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="default">Default</SelectItem>
+                      <SelectItem value="landing">Landing Page</SelectItem>
+                      <SelectItem value="blog">Blog Post</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
-
-      <Tabs defaultValue="content" className="w-full">
-        <TabsList>
-          <TabsTrigger value="content">Content</TabsTrigger>
-          <TabsTrigger value="hero">Hero Section</TabsTrigger>
-          <TabsTrigger value="seo">SEO Settings</TabsTrigger>
-          <TabsTrigger value="settings">Page Settings</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="content" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Page Content</CardTitle>
-              <CardDescription>Edit the main content of your page</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RichTextEditor
-                content={pageData.content}
-                onChange={(content) => setPageData({ ...pageData, content })}
-                placeholder="Write your page content here..."
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="hero" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Hero Section</CardTitle>
-              <CardDescription>Customize the hero section of your page</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="hero-title">Hero Title</Label>
-                <Input
-                  id="hero-title"
-                  value={pageData.heroTitle}
-                  onChange={(e) => setPageData({ ...pageData, heroTitle: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="hero-subtitle">Hero Subtitle</Label>
-                <Input
-                  id="hero-subtitle"
-                  value={pageData.heroSubtitle}
-                  onChange={(e) => setPageData({ ...pageData, heroSubtitle: e.target.value })}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="hero-button-text">Button Text</Label>
-                  <Input
-                    id="hero-button-text"
-                    value={pageData.heroButtonText}
-                    onChange={(e) => setPageData({ ...pageData, heroButtonText: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="hero-button-link">Button Link</Label>
-                  <Input
-                    id="hero-button-link"
-                    value={pageData.heroButtonLink}
-                    onChange={(e) => setPageData({ ...pageData, heroButtonLink: e.target.value })}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="seo" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>SEO Settings</CardTitle>
-              <CardDescription>Optimize your page for search engines</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="meta-title">Meta Title</Label>
-                <Input
-                  id="meta-title"
-                  value={pageData.metaTitle}
-                  onChange={(e) => setPageData({ ...pageData, metaTitle: e.target.value })}
-                />
-                <p className="text-sm text-muted-foreground mt-1">
-                  {pageData.metaTitle.length}/60 characters
-                </p>
-              </div>
-              <div>
-                <Label htmlFor="meta-description">Meta Description</Label>
-                <Input
-                  id="meta-description"
-                  value={pageData.metaDescription}
-                  onChange={(e) => setPageData({ ...pageData, metaDescription: e.target.value })}
-                />
-                <p className="text-sm text-muted-foreground mt-1">
-                  {pageData.metaDescription.length}/160 characters
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="settings" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Page Settings</CardTitle>
-              <CardDescription>Configure page properties and visibility</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="page-title">Page Title</Label>
-                <Input
-                  id="page-title"
-                  value={pageData.title}
-                  onChange={(e) => setPageData({ ...pageData, title: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="page-slug">Page URL (Slug)</Label>
-                <Input
-                  id="page-slug"
-                  value={pageData.slug}
-                  onChange={(e) => setPageData({ ...pageData, slug: e.target.value })}
-                />
-                <p className="text-sm text-muted-foreground mt-1">
-                  Your page will be available at: /pages/{pageData.slug}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
     </div>
   );
 };

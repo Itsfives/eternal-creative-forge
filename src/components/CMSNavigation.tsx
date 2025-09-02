@@ -1,26 +1,30 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { 
   FileText, 
-  Settings, 
   Users, 
-  BarChart3, 
   Image, 
-  Palette, 
+  Settings, 
+  Plus, 
+  Eye, 
+  Edit, 
+  Trash2, 
+  Search,
+  Monitor,
+  Palette,
   Globe,
-  Plus,
-  Edit,
-  Eye,
-  Trash2,
-  Search
+  BarChart
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import PageEditor from "./PageEditor";
-import PortfolioEditor from "./PortfolioEditor";
-import SitePreview from "./SitePreview";
+import PageEditor from "@/components/PageEditor";
+import PortfolioEditor from "@/components/PortfolioEditor";
+import MediaLibrary from "@/components/MediaLibrary";
 import { usePortfolio } from "@/hooks/usePortfolio";
+import { usePages } from "@/hooks/usePages";
+import { useMedia } from "@/hooks/useMedia";
+import { format } from "date-fns";
 
 interface CMSNavigationProps {
   onSelectSection: (section: string) => void;
@@ -30,39 +34,22 @@ interface CMSNavigationProps {
 const CMSNavigation = ({ onSelectSection, activeSection }: CMSNavigationProps) => {
   const [showPageEditor, setShowPageEditor] = useState(false);
   const [showPortfolioEditor, setShowPortfolioEditor] = useState(false);
-  const [selectedPageId, setSelectedPageId] = useState<string | undefined>();
-  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>();
+  const [selectedItemId, setSelectedItemId] = useState<string | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
-  const { portfolios, deletePortfolio } = usePortfolio();
+  
+  const { portfolios, loading: portfoliosLoading, deletePortfolio } = usePortfolio();
+  const { pages, loading: pagesLoading, deletePage, publishPage, unpublishPage } = usePages();
+  const { media, loading: mediaLoading, deleteFile } = useMedia();
 
-  const pages = [
-    { id: "home", title: "Home Page", status: "Published", lastModified: "2 hours ago" },
-    { id: "about", title: "About Us", status: "Draft", lastModified: "1 day ago" },
-    { id: "services", title: "Services", status: "Published", lastModified: "3 days ago" },
-    { id: "portfolio", title: "Portfolio", status: "Published", lastModified: "1 week ago" },
-    { id: "contact", title: "Contact", status: "Published", lastModified: "2 weeks ago" },
-    { id: "blog", title: "Blog", status: "Draft", lastModified: "3 weeks ago" }
-  ];
-
-  const filteredPages = pages.filter(page => 
-    page.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleEditPage = (pageId: string) => {
-    setSelectedPageId(pageId);
-    setShowPageEditor(true);
-  };
-
-  const handleEditProject = (projectId: string) => {
-    setSelectedProjectId(projectId);
-    setShowPortfolioEditor(true);
-  };
-
+  // Show editors when needed
   if (showPageEditor) {
     return (
       <PageEditor 
-        pageId={selectedPageId} 
-        onBack={() => setShowPageEditor(false)} 
+        pageId={selectedItemId} 
+        onBack={() => {
+          setShowPageEditor(false);
+          setSelectedItemId(undefined);
+        }} 
       />
     );
   }
@@ -70,11 +57,24 @@ const CMSNavigation = ({ onSelectSection, activeSection }: CMSNavigationProps) =
   if (showPortfolioEditor) {
     return (
       <PortfolioEditor 
-        projectId={selectedProjectId} 
-        onBack={() => setShowPortfolioEditor(false)} 
+        projectId={selectedItemId} 
+        onBack={() => {
+          setShowPortfolioEditor(false);
+          setSelectedItemId(undefined);
+        }} 
       />
     );
   }
+
+  const handleCreateNew = () => {
+    if (activeSection === "portfolio") {
+      setSelectedItemId("new");
+      setShowPortfolioEditor(true);
+    } else {
+      setSelectedItemId("new");
+      setShowPageEditor(true);
+    }
+  };
 
   const sections = [
     {
@@ -87,15 +87,22 @@ const CMSNavigation = ({ onSelectSection, activeSection }: CMSNavigationProps) =
     {
       id: "portfolio",
       title: "Portfolio",
-      icon: Image,
-      description: "Manage portfolio projects and case studies",
+      icon: Monitor,
+      description: "Showcase projects and work",
       count: portfolios.length
     },
     {
       id: "media",
       title: "Media Library",
       icon: Image,
-      description: "Upload and manage images, videos, and files",
+      description: "Upload and manage images and files",
+      count: media.length
+    },
+    {
+      id: "users",
+      title: "Users",
+      icon: Users,
+      description: "Manage user accounts and permissions",
       count: 0
     },
     {
@@ -106,45 +113,42 @@ const CMSNavigation = ({ onSelectSection, activeSection }: CMSNavigationProps) =
       count: 0
     },
     {
-      id: "analytics",
-      title: "Analytics",
-      icon: BarChart3,
-      description: "View site performance and user analytics",
-      count: 0
-    },
-    {
       id: "settings",
       title: "Site Settings",
       icon: Settings,
-      description: "Configure site-wide settings and SEO",
+      description: "Configure site-wide options",
       count: 0
     },
     {
-      id: "users",
-      title: "Users & Permissions",
-      icon: Users,
-      description: "Manage user accounts and access levels",
+      id: "analytics",
+      title: "Analytics",
+      icon: BarChart,
+      description: "View site performance and metrics",
       count: 0
     },
     {
       id: "preview",
-      title: "Site Access Preview",
+      title: "Preview Site",
       icon: Globe,
-      description: "See what different users can access",
+      description: "Preview your site before publishing",
       count: 0
     }
   ];
 
   return (
     <div className="space-y-6">
-      {/* Quick Actions Header */}
-      <div className="flex justify-between items-center">
+      {/* Header with Quick Actions */}
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Content Management</h2>
-          <p className="text-muted-foreground">Manage your website content and settings</p>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-seagram-green to-violet-purple bg-clip-text text-transparent">
+            Content Management
+          </h2>
+          <p className="text-muted-foreground mt-1">
+            Manage your website content, media, and settings
+          </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => activeSection === "portfolio" ? handleEditProject("new") : handleEditPage("new")}>
+          <Button onClick={handleCreateNew} className="bg-seagram-green hover:bg-seagram-green/90">
             <Plus className="w-4 h-4 mr-2" />
             {activeSection === "portfolio" ? "New Project" : "New Page"}
           </Button>
@@ -155,178 +159,200 @@ const CMSNavigation = ({ onSelectSection, activeSection }: CMSNavigationProps) =
         </div>
       </div>
 
-      {/* Main Navigation Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sections.map((section) => {
-          const Icon = section.icon;
-          const isActive = activeSection === section.id;
-          
-          return (
-            <Card 
-              key={section.id}
-              className={`cursor-pointer transition-all hover:shadow-lg ${
-                isActive ? 'ring-2 ring-seagram-green bg-seagram-green/5' : ''
-              }`}
-              onClick={() => onSelectSection(section.id)}
-            >
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <Icon className={`w-8 h-8 ${isActive ? 'text-seagram-green' : 'text-muted-foreground'}`} />
-                  {section.count > 0 && (
-                    <Badge variant="secondary">{section.count}</Badge>
-                  )}
-                </div>
-                <CardTitle className="text-lg">{section.title}</CardTitle>
-                <CardDescription className="text-sm">
-                  {section.description}
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          );
-        })}
-      </div>
+      {/* Navigation Grid */}
+      {!activeSection || activeSection === "overview" ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {sections.map((section) => {
+            const Icon = section.icon;
+            
+            return (
+              <Card 
+                key={section.id}
+                className="cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]"
+                onClick={() => onSelectSection(section.id)}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <Icon className="w-8 h-8 text-seagram-green" />
+                    {section.count > 0 && (
+                      <Badge variant="secondary">{section.count}</Badge>
+                    )}
+                  </div>
+                  <CardTitle className="text-lg">{section.title}</CardTitle>
+                  <CardDescription className="text-sm">
+                    {section.description}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {/* Back to Overview */}
+          <Button 
+            variant="ghost" 
+            onClick={() => onSelectSection("overview")}
+            className="mb-4"
+          >
+            ← Back to Overview
+          </Button>
 
-      {/* Pages Quick View */}
-      {activeSection === "pages" && (
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>Recent Pages</CardTitle>
-              <div className="flex gap-2">
-                <div className="relative">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search pages..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-64"
-                  />
+          {/* Section Content */}
+          <div className="min-h-[400px]">
+            {activeSection === "pages" && (
+              <div className="space-y-4">
+                <div className="flex items-center space-x-4">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      placeholder="Search pages..." 
+                      className="pl-8"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
                 </div>
+                
+                {pagesLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">Loading pages...</div>
+                ) : (
+                  <div className="grid gap-4">
+                    {pages
+                      .filter(page => page.title.toLowerCase().includes(searchTerm.toLowerCase()))
+                      .map((page) => (
+                      <Card key={page.id} className="hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <h3 className="font-medium">{page.title}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                Updated {format(new Date(page.updated_at), 'MMM d, yyyy')}
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Badge variant={page.status === "published" ? "default" : "secondary"}>
+                                {page.status}
+                              </Badge>
+                              <Button variant="ghost" size="sm">
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedItemId(page.id);
+                                  setShowPageEditor(true);
+                                }}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => page.status === "published" 
+                                  ? unpublishPage(page.id) 
+                                  : publishPage(page.id)
+                                }
+                              >
+                                {page.status === "published" ? "Unpublish" : "Publish"}
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => deletePage(page.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {filteredPages.map((page) => (
-                <div 
-                  key={page.id}
-                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <h4 className="font-medium">{page.title}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Last modified {page.lastModified}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge 
-                      variant={page.status === "Published" ? "default" : "secondary"}
-                      className={page.status === "Published" ? "bg-seagram-green hover:bg-seagram-green/90" : ""}
-                    >
-                      {page.status}
-                    </Badge>
-                    <div className="flex gap-1">
-                      <Button 
-                        size="sm" 
-                        variant="ghost"
-                        onClick={() => handleEditPage(page.id)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+            )}
+
+            {activeSection === "portfolio" && (
+              <div className="space-y-4">
+                <div className="flex items-center space-x-4">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      placeholder="Search portfolio..." 
+                      className="pl-8"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Site Preview */}
-      {activeSection === "preview" && <SitePreview />}
-
-      {/* Portfolio Quick View */}
-      {activeSection === "portfolio" && (
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>Portfolio Projects</CardTitle>
-              <div className="flex gap-2">
-                <div className="relative">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search projects..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-64"
-                  />
-                </div>
+                
+                {portfoliosLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">Loading portfolios...</div>
+                ) : (
+                  <div className="grid gap-4">
+                    {portfolios
+                      .filter(portfolio => portfolio.title.toLowerCase().includes(searchTerm.toLowerCase()))
+                      .map((portfolio) => (
+                      <Card key={portfolio.id} className="hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <h3 className="font-medium">{portfolio.title}</h3>
+                              <p className="text-sm text-muted-foreground">{portfolio.category}</p>
+                              <p className="text-sm text-muted-foreground">
+                                Updated {format(new Date(portfolio.updated_at), 'MMM d, yyyy')}
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Badge variant={portfolio.status === "published" ? "default" : "secondary"}>
+                                {portfolio.status}
+                              </Badge>
+                              <Button variant="ghost" size="sm">
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedItemId(portfolio.id);
+                                  setShowPortfolioEditor(true);
+                                }}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => deletePortfolio(portfolio.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
-              {portfolios
-                .filter(project => 
-                  project.title.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                .map((project) => (
-                <div 
-                  key={project.id}
-                  className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <Image className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <h4 className="font-medium flex items-center gap-2">
-                        {project.title}
-                        {project.featured && <Badge variant="secondary">Featured</Badge>}
-                      </h4>
-                      <p className="text-sm text-muted-foreground">{project.category}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge 
-                      variant={project.status === "published" ? "default" : "secondary"}
-                      className={project.status === "published" ? "bg-seagram-green hover:bg-seagram-green/90" : ""}
-                    >
-                      {project.status}
-                    </Badge>
-                    <div className="flex gap-1">
-                      <Button 
-                        size="sm" 
-                        variant="ghost"
-                        onClick={() => handleEditProject(project.id)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => deletePortfolio(project.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+            )}
+
+            {activeSection === "media" && <MediaLibrary />}
+
+            {activeSection === "preview" && (
+              <div className="text-center py-16">
+                <Globe className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Site Preview</h3>
+                <p className="text-muted-foreground mb-6">Preview how your site looks to visitors</p>
+                <Button className="bg-seagram-green hover:bg-seagram-green/90">
+                  Open Preview
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
