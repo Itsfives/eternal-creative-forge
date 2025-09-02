@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, Clock, CheckCircle, Download, MessageCircle, CreditCard, Calendar, AlertCircle, HelpCircle, Home, DollarSign, ShoppingBag } from "lucide-react";
+import { FileText, Clock, CheckCircle, Download, MessageCircle, CreditCard, Calendar, AlertCircle, HelpCircle, Home, DollarSign, ShoppingBag, LogOut } from "lucide-react";
 import { useStore } from "@/hooks/useStore";
 import { DownloadCard } from "@/components/DownloadCard";
 import { Link } from "react-router-dom";
@@ -14,6 +14,7 @@ import { useClientProjects } from "@/hooks/useClientProjects";
 import { useClientCommunications } from "@/hooks/useClientCommunications";
 import CommunicationComposer from "@/components/CommunicationComposer";
 import AccessControl from "@/components/AccessControl";
+import ClientPortalDashboard from "@/components/ClientPortalDashboard";
 
 const ClientPortal = () => {
   const { purchases, loading: storeLoading, incrementDownloadCount } = useStore();
@@ -92,6 +93,10 @@ const ClientPortal = () => {
                 <HelpCircle className="w-4 h-4 mr-2" />
                 Need Help?
               </Button>
+              <Button variant="outline" size="sm" onClick={() => {/* logout logic */}}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
             </div>
           </div>
         </div>
@@ -123,72 +128,7 @@ const ClientPortal = () => {
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-              <Card className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <CheckCircle className="w-5 h-5 mr-2 text-seagram-green" />
-                    Active Projects
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">{activeProjects.length}</div>
-                  <p className="text-sm text-muted-foreground">Currently in progress</p>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <FileText className="w-5 h-5 mr-2 text-violet-purple" />
-                    Available Files
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">{recentFiles.length}</div>
-                  <p className="text-sm text-muted-foreground">Ready for download</p>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <MessageCircle className="w-5 h-5 mr-2 text-seagram-green" />
-                    New Messages
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">{unreadCount}</div>
-                  <p className="text-sm text-muted-foreground">Unread messages</p>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <ShoppingBag className="w-5 h-5 mr-2 text-violet-purple" />
-                    Downloads
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">{purchases.length}</div>
-                  <p className="text-sm text-muted-foreground">Available downloads</p>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <CreditCard className="w-5 h-5 mr-2 text-violet-purple" />
-                    Outstanding
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">${invoices.filter(i => i.status === 'Pending').reduce((sum, inv) => sum + inv.amount, 0)}</div>
-                  <p className="text-sm text-muted-foreground">Pending invoices</p>
-                </CardContent>
-              </Card>
-            </div>
+          <ClientPortalDashboard />
 
             <div className="grid gap-6 md:grid-cols-2">
               <Card>

@@ -44,6 +44,42 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          created_at: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          page_url: string | null
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          page_url?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          page_url?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           created_at: string
@@ -138,6 +174,71 @@ export type Database = {
           },
         ]
       }
+      client_files: {
+        Row: {
+          created_at: string | null
+          download_count: number | null
+          download_limit: number | null
+          expires_at: string | null
+          file_path: string
+          file_size: number
+          file_type: string
+          filename: string
+          id: string
+          is_current_version: boolean | null
+          original_name: string
+          project_id: string | null
+          updated_at: string | null
+          upload_date: string | null
+          user_id: string
+          version: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          download_count?: number | null
+          download_limit?: number | null
+          expires_at?: string | null
+          file_path: string
+          file_size: number
+          file_type: string
+          filename: string
+          id?: string
+          is_current_version?: boolean | null
+          original_name: string
+          project_id?: string | null
+          updated_at?: string | null
+          upload_date?: string | null
+          user_id: string
+          version?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          download_count?: number | null
+          download_limit?: number | null
+          expires_at?: string | null
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          filename?: string
+          id?: string
+          is_current_version?: boolean | null
+          original_name?: string
+          project_id?: string | null
+          updated_at?: string | null
+          upload_date?: string | null
+          user_id?: string
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "client_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_projects: {
         Row: {
           budget: number | null
@@ -191,6 +292,154 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      content_blocks: {
+        Row: {
+          content: string | null
+          content_type: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          key: string
+          meta_data: Json | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content?: string | null
+          content_type?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          key: string
+          meta_data?: Json | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string | null
+          content_type?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          key?: string
+          meta_data?: Json | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      contracts: {
+        Row: {
+          content: string | null
+          contract_number: string
+          created_at: string | null
+          expires_at: string | null
+          file_path: string | null
+          id: string
+          project_id: string | null
+          signed_date: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          contract_number?: string
+          created_at?: string | null
+          expires_at?: string | null
+          file_path?: string | null
+          id?: string
+          project_id?: string | null
+          signed_date?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          contract_number?: string
+          created_at?: string | null
+          expires_at?: string | null
+          file_path?: string | null
+          id?: string
+          project_id?: string | null
+          signed_date?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "client_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          invoice_number: string
+          line_items: Json | null
+          payment_date: string | null
+          project_id: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number?: string
+          line_items?: Json | null
+          payment_date?: string | null
+          project_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number?: string
+          line_items?: Json | null
+          payment_date?: string | null
+          project_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "client_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       media: {
         Row: {
