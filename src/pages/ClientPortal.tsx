@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useClientProjects } from "@/hooks/useClientProjects";
 import { useClientCommunications } from "@/hooks/useClientCommunications";
 import CommunicationComposer from "@/components/CommunicationComposer";
+import AccessControl from "@/components/AccessControl";
 
 const ClientPortal = () => {
   const { purchases, loading: storeLoading, incrementDownloadCount } = useStore();
@@ -40,9 +41,35 @@ const ClientPortal = () => {
     { id: "INV-002", amount: 1200, status: "Pending", date: "Dec 1, 2024", project: "Mobile App Development" }
   ]);
 
+  if (!user) {
+    return (
+      <AccessControl requireAuth={true}>
+        <div className="min-h-screen bg-background pt-20">
+          <div className="flex items-center justify-center py-12">
+            <Card className="w-full max-w-md">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold mb-2">Access Required</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Please log in to access your client portal.
+                  </p>
+                  <Link to="/auth">
+                    <Button className="bg-seagram-green hover:bg-seagram-green/90">
+                      Sign In
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </AccessControl>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background pt-20">
+    <AccessControl requireAuth={true}>
+      <div className="min-h-screen bg-background pt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
           <div className="flex justify-between items-start">
@@ -617,8 +644,9 @@ const ClientPortal = () => {
             </Card>
           </TabsContent>
         </Tabs>
+        </div>
       </div>
-    </div>
+    </AccessControl>
   );
 };
 

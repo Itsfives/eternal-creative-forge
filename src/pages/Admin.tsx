@@ -13,24 +13,19 @@ import QuickStartGuide from "@/components/QuickStartGuide";
 import ClientSetupWizard from "@/components/ClientSetupWizard";
 import ProjectCreator from "@/components/ProjectCreator";
 import ProjectTeamManager from "@/components/ProjectTeamManager";
+import RoleManager from "@/components/RoleManager";
 import { useClientProjects } from "@/hooks/useClientProjects";
+import { useUsers } from "@/hooks/useUsers";
+import { useActivityLog } from "@/hooks/useActivityLog";
+import { useAuth } from "@/hooks/useAuth";
+import AccessControl from "@/components/AccessControl";
 
 const Admin = () => {
   const [showClientWizard, setShowClientWizard] = useState(false);
   const { projects, refetch } = useClientProjects();
-  
-  const [users] = useState([
-    { id: 1, name: "John Doe", email: "john@example.com", role: "Client", status: "Active", joined: "Nov 15, 2024" },
-    { id: 2, name: "Jane Smith", email: "jane@example.com", role: "Editor", status: "Active", joined: "Oct 22, 2024" },
-    { id: 3, name: "Mike Johnson", email: "mike@example.com", role: "Client", status: "Inactive", joined: "Sep 10, 2024" }
-  ]);
-
-  const [activities] = useState([
-    { action: "User login", user: "John Doe", time: "2 minutes ago", type: "info" },
-    { action: "Page published", user: "Jane Smith", time: "1 hour ago", type: "success" },
-    { action: "Failed login attempt", user: "Unknown", time: "3 hours ago", type: "warning" },
-    { action: "New user registered", user: "Mike Johnson", time: "1 day ago", type: "info" }
-  ]);
+  const { users, loading: usersLoading, assignRole, removeRole } = useUsers();
+  const { activities, loading: activitiesLoading } = useActivityLog();
+  const { user: currentUser } = useAuth();
 
   if (showClientWizard) {
     return (
@@ -43,8 +38,9 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <AccessControl requireAuth={true} requiredRole="admin">
+      <div className="min-h-screen bg-background pt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
           <div className="flex justify-between items-start">
             <div>
@@ -52,7 +48,7 @@ const Admin = () => {
                 Admin Dashboard
               </h1>
               <p className="text-muted-foreground mt-2">
-                Monitor your website performance and manage system operations
+                Welcome {currentUser?.email} - Monitor and manage system operations
               </p>
             </div>
             <div className="flex items-center space-x-2">
@@ -105,23 +101,43 @@ const Admin = () => {
                   <CardDescription>Latest system activities</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {activities.slice(0, 4).map((activity, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-2 h-2 rounded-full ${
-                            activity.type === 'success' ? 'bg-green-500' :
-                            activity.type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
-                          }`} />
-                          <div>
-                            <p className="text-sm font-medium">{activity.action}</p>
-                            <p className="text-xs text-muted-foreground">by {activity.user}</p>
+                  {activitiesLoading ? (
+                    <div className="space-y-3">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="flex items-center justify-between p-3 border rounded-lg animate-pulse">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-2 h-2 rounded-full bg-muted" />
+                            <div>
+                              <div className="h-4 bg-muted rounded w-32 mb-1" />
+                              <div className="h-3 bg-muted rounded w-20" />
+                            </div>
                           </div>
+                          <div className="h-3 bg-muted rounded w-16" />
                         </div>
-                        <p className="text-xs text-muted-foreground">{activity.time}</p>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {activities.slice(0, 4).map((activity, index) => (
+                        <div key={activity.id || index} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-2 h-2 rounded-full ${
+                              activity.type === 'success' ? 'bg-green-500' :
+                              activity.type === 'warning' ? 'bg-yellow-500' : 
+                              activity.type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                            }`} />
+                            <div>
+                              <p className="text-sm font-medium">{activity.action}</p>
+                              <p className="text-xs text-muted-foreground">by {activity.user_name || 'System'}</p>
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(activity.timestamp).toLocaleDateString()}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -269,45 +285,84 @@ const Admin = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Joined</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell className="font-medium">{user.name}</TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>
-                          <Badge variant={user.role === "Admin" ? "default" : "secondary"}>
-                            {user.role}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={user.status === "Active" ? "default" : "secondary"}>
-                            {user.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{user.joined}</TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            <Button size="sm" variant="outline">Edit</Button>
-                            <Button size="sm" variant="outline">Delete</Button>
+                {usersLoading ? (
+                  <div className="space-y-4">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="flex items-center justify-between p-4 border rounded-lg animate-pulse">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-muted rounded-full" />
+                          <div>
+                            <div className="h-4 bg-muted rounded w-32 mb-2" />
+                            <div className="h-3 bg-muted rounded w-24" />
                           </div>
-                        </TableCell>
-                      </TableRow>
+                        </div>
+                        <div className="flex space-x-2">
+                          <div className="h-6 bg-muted rounded w-16" />
+                          <div className="h-6 bg-muted rounded w-20" />
+                        </div>
+                      </div>
                     ))}
-                  </TableBody>
-                </Table>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Roles</TableHead>
+                        <TableHead>Joined</TableHead>
+                        <TableHead>Last Active</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {users.map((user) => (
+                        <TableRow key={user.id}>
+                          <TableCell className="font-medium">
+                            {user.display_name || 'No name set'}
+                          </TableCell>
+                          <TableCell>{user.email}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-1 flex-wrap">
+                              {user.roles.length > 0 ? (
+                                user.roles.map(role => (
+                                  <Badge 
+                                    key={role} 
+                                    variant={role === "admin" ? "default" : "secondary"}
+                                  >
+                                    {role}
+                                  </Badge>
+                                ))
+                              ) : (
+                                <Badge variant="outline">No roles</Badge>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {user.created_at ? format(new Date(user.created_at), 'MMM d, yyyy') : 'Unknown'}
+                          </TableCell>
+                          <TableCell>
+                            {user.last_sign_in_at 
+                              ? format(new Date(user.last_sign_in_at), 'MMM d, yyyy') 
+                              : 'Never'
+                            }
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <Button size="sm" variant="outline">Manage Roles</Button>
+                              <Button size="sm" variant="outline">View Profile</Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
+            
+            {/* Role Management Section */}
+            <RoleManager />
           </TabsContent>
 
           <TabsContent value="activity" className="space-y-6">
@@ -317,23 +372,52 @@ const Admin = () => {
                 <CardDescription>Monitor all system and user activities</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {activities.map((activity, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        <div className={`w-3 h-3 rounded-full ${
-                          activity.type === 'success' ? 'bg-green-500' :
-                          activity.type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
-                        }`} />
-                        <div>
-                          <p className="font-medium">{activity.action}</p>
-                          <p className="text-sm text-muted-foreground">by {activity.user}</p>
+                {activitiesLoading ? (
+                  <div className="space-y-4">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <div key={i} className="flex items-center justify-between p-4 border rounded-lg animate-pulse">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-3 h-3 rounded-full bg-muted" />
+                          <div>
+                            <div className="h-4 bg-muted rounded w-48 mb-2" />
+                            <div className="h-3 bg-muted rounded w-24" />
+                          </div>
                         </div>
+                        <div className="h-3 bg-muted rounded w-20" />
                       </div>
-                      <p className="text-sm text-muted-foreground">{activity.time}</p>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : activities.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No recent activities to display.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {activities.map((activity, index) => (
+                      <div key={activity.id || index} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          <div className={`w-3 h-3 rounded-full ${
+                            activity.type === 'success' ? 'bg-green-500' :
+                            activity.type === 'warning' ? 'bg-yellow-500' : 
+                            activity.type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                          }`} />
+                          <div>
+                            <p className="font-medium">{activity.action}</p>
+                            <p className="text-sm text-muted-foreground">
+                              by {activity.user_name || 'System'}
+                              {activity.details && (
+                                <span className="ml-2 text-xs">({activity.details})</span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(activity.timestamp).toLocaleString()}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -418,8 +502,9 @@ const Admin = () => {
             </Card>
           </TabsContent>
         </Tabs>
+        </div>
       </div>
-    </div>
+    </AccessControl>
   );
 };
 
