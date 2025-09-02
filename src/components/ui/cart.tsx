@@ -102,7 +102,11 @@ export function CartContent() {
           <span>Total: ${getTotalPrice().toFixed(2)}</span>
         </div>
         <div className="space-y-2">
-          <Button className="w-full" size="lg">
+          <Button 
+            className="w-full" 
+            size="lg"
+            onClick={() => window.location.href = '/checkout'}
+          >
             Proceed to Checkout
           </Button>
           <Button

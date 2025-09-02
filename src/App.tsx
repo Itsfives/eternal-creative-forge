@@ -16,6 +16,8 @@ import Store from "./pages/Store";
 import CMS from "./pages/CMS";
 import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
+import { CheckoutPage } from "./pages/Checkout";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import { LazyLogoParticles } from "./components/LazyWrapper";
 import PerformanceMonitor from "./components/PerformanceMonitor";
@@ -26,21 +28,6 @@ const AppWithAnalytics = () => {
   console.log("App is loading successfully");
   
   useOptimizedAnalytics(); // Initialize analytics tracking
-  
-  // Protected Route Component
-  const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode; requiredRole?: string }) => {
-    const { isAuthenticated, hasRole } = useAuth();
-    
-    if (!isAuthenticated) {
-      return <Auth />;
-    }
-    
-    if (requiredRole && !hasRole(requiredRole)) {
-      return <NotFound />;
-    }
-    
-    return <>{children}</>;
-  };
   
   return (
     <>
@@ -53,8 +40,10 @@ const AppWithAnalytics = () => {
         <Route path="/portfolio/:projectId" element={<ProjectDetail />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/store" element={<Store />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/auth" element={<Auth />} />
         <Route path="/admin" element={
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute requiredRoles={['admin']}>
             <Admin />
           </ProtectedRoute>
         } />
@@ -64,11 +53,10 @@ const AppWithAnalytics = () => {
           </ProtectedRoute>
         } />
         <Route path="/cms" element={
-          <ProtectedRoute requiredRole="cms_editor">
+          <ProtectedRoute requiredRoles={['admin', 'cms_editor']}>
             <CMS />
           </ProtectedRoute>
         } />
-        <Route path="/auth" element={<Auth />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

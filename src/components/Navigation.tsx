@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, User, Shield, Settings, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { CartIcon } from "@/components/ui/cart";
+import { NotificationBell } from "@/components/Notifications";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -120,6 +122,10 @@ const Navigation = () => {
               
               {/* Portal Links */}
               <div className="flex items-center space-x-2 ml-4 pl-4 border-l border-border">
+                {/* Cart and Notifications for all users */}
+                <CartIcon />
+                {isAuthenticated && <NotificationBell />}
+                
                 {portalItems.map((item) => (
                   <Link
                     key={item.name}

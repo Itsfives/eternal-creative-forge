@@ -1,7 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Download, ShoppingCart, CheckCircle } from "lucide-react";
+import { Download, ShoppingCart, CheckCircle, Plus } from "lucide-react";
+import { useCart } from '@/hooks/useCart';
 import type { Database } from '@/integrations/supabase/types';
 
 type StoreProduct = Database['public']['Tables']['store_products']['Row'];
@@ -19,6 +20,8 @@ export const StoreProductCard = ({
   isPurchased = false, 
   isLoading = false 
 }: StoreProductCardProps) => {
+  const { addItem } = useCart();
+  
   const formatPrice = (priceInCents: number) => {
     return (priceInCents / 100).toFixed(2);
   };
@@ -27,6 +30,16 @@ export const StoreProductCard = ({
     if (!bytes) return '';
     const mb = bytes / (1024 * 1024);
     return `${mb.toFixed(1)} MB`;
+  };
+
+  const handleAddToCart = () => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price / 100, // Convert from cents to dollars
+      image_url: product.preview_image_url || undefined,
+      description: product.description || undefined
+    });
   };
 
   return (
@@ -94,14 +107,25 @@ export const StoreProductCard = ({
                 Purchased
               </Badge>
             ) : (
-              <Button 
-                onClick={() => onPurchase(product)}
-                disabled={isLoading}
-                className="bg-primary hover:bg-primary/90"
-              >
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                {isLoading ? 'Processing...' : 'Buy Now'}
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleAddToCart}
+                  variant="outline"
+                  size="sm"
+                  className="hover:bg-primary/10"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Cart
+                </Button>
+                <Button 
+                  onClick={() => onPurchase(product)}
+                  disabled={isLoading}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  <ShoppingCart className="w-4 h-4 mr-2" />
+                  {isLoading ? 'Processing...' : 'Buy Now'}
+                </Button>
+              </div>
             )}
           </div>
         </div>
